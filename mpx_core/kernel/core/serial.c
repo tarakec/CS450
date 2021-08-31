@@ -10,6 +10,7 @@
 
 #include <core/io.h>
 #include <core/serial.h>
+#include "modules/polling_helper.h"
 
 #define NO_ERROR 0
 
@@ -92,11 +93,28 @@ int *polling(char *buffer, int *count){
 // insert your code to gather keyboard input via the technique of polling.
 // You must validat each key and handle special keys such as delete, back space, and
 // arrow keys
+  
+   *count = 0;
+   int size = 0;
+   int cursor = 0;
+   int *sizePtr = &size;
+   int *cursorPtr = &cursor;
+   
+   while(1){
 
-// remove the following line after implementing your module, this is present
-// just to allow the program to compile before R1 is complete
-strlen(buffer);
-
+   	if (inb(COM1 + 5)&1){
+   	  char letter = inb(COM1);
+   	  
+   	  int result = special_keys(buffer, count, letter, sizePtr, cursorPtr);
+   	  if (result == -1){
+   	  	break;
+   	  }
+   	  
+   	}
+   	
+   }
+   
+   
 return count;
 }
 
