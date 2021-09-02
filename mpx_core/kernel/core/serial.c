@@ -12,6 +12,7 @@
 #include <core/serial.h>
 #include "modules/polling_helper.h"
 
+
 #define NO_ERROR 0
 
 // Active devices used for serial I/O

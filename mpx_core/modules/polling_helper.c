@@ -1,5 +1,5 @@
 #include "polling_helper.h"
-#include <core/serial.h>
+#include <../include/core/serial.h>
 
 
 
@@ -39,15 +39,20 @@ int special_keys(char* buffer, int* count, char letter, int* sizePtr, int* curso
 				(*cursorPtr)--; //decrement the cursor since moving left
 				break;
 			}
-
+		case DELETE:
+			backspace(buffer, count, sizePtr, cursorPtr); //call backspace function
+			break;
+			
+		case BACKSPACE:
+			backspace(buffer, count, sizePtr, cursorPtr);// call backspace function
+			break;
+			
 		//default case is a printable character
 		default:
 
 			//preventing buffer overflow
 			if (*sizePtr > 95){
-
 				//do nothing
-
 			}
 			else{
 				//buffer at cursor position is equal to the letter
@@ -61,11 +66,24 @@ int special_keys(char* buffer, int* count, char letter, int* sizePtr, int* curso
 				(sizePtr)++;
 				(cursorPtr)++;
 
-
 			}
-
-
 	}
-
 	return 0;
+}
+
+
+void backspace(char *buffer, int *count, int *sizePtr, int *cursorPtr) {
+	
+	//first make sure that the size is greater than 0 and that the cursor isn't at the 0 position.
+	if (*sizePtr > 0 && *cursorPtr > 0){
+		buffer[*cursorPtr - 1] = 0;
+		(*count)--;
+		(*sizePtr)--;
+		(*cursorPtr)--;
+		
+		//send to the output a visual backspace 
+		serial_print("\b");
+		serial_print(" ");
+		serial_print("\b");
+	}
 }
