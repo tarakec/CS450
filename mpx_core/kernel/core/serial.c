@@ -105,8 +105,14 @@ int *polling(char *buffer, int *count){
 
    	if (inb(COM1 + 5)&1){
    	  char letter = inb(COM1);
+
+      if(letter == '\033'){
+        letter = inb(COM1);
+        letter = inb(COM1);
+      }
    	  
    	  int result = special_keys(buffer, count, letter, sizePtr, cursorPtr);
+
    	  if (result == -1){
    	  	break;
    	  }

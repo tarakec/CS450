@@ -63,8 +63,8 @@ int special_keys(char* buffer, int* count, char letter, int* sizePtr, int* curso
 
 				//increment variables
 				(*count)++;
-				(sizePtr)++;
-				(cursorPtr)++;
+				(*sizePtr)++;
+				(*cursorPtr)++;
 
 			}
 	}
