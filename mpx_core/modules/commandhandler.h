@@ -4,6 +4,7 @@
 
 
 
+void command_handler();
 
 /**
  * Provides instructions on how to use each command.

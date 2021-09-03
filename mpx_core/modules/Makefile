@@ -12,7 +12,8 @@ ASFLAGS = -f elf -g
 # I'll start you off with just mpx_supt.o
 OBJFILES =\
 mpx_supt.o\
-polling_helper.o
+polling_helper.o\
+command_handler.o
 
 .c.s:
 	$(CC) $(CFLAGS) -S -o $@ $<

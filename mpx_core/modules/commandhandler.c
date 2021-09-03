@@ -1,11 +1,46 @@
- #include "commandhandler.h"
- #include "modules/mpx_supt.h"
- #include <string.h>
- #include <stdint.h>
- #include <string.h>
- #include <core/io.h>
- #include <core/serial.h>
- 
+#include "commandhandler.h"
+#include "mpx_supt.h"
+#include <string.h>
+#include <stdint.h>
+#include <string.h>
+#include <../include/core/io.h>
+#include <../include/core/serial.h>
+
+#define ANSI_COLOR_CYAN "\x1b[36m"
+#define ANSI_COLOR_RESET "\x1b[0m"
+#define ANSI_COLOR_RED "\x1b[31m"
+#define ANSI_COLOR_YELLOW "\x1b[33m"
+#define ANSI_COLOR_GREEN "\x1b[32m"
+#define ANSI_COLOR_BLUE "\x1b[34m"
+
+void command_handler(){
+	char *selections = ANSI_COLOR_CYAN "\n ~Welcome to S0S-MPX~ \n" ANSI_COLOR_RESET;
+
+	int selectLen = strlen(selections);
+
+	char cmdBuffer[100]; //buffer for command read in
+	int bufferSize;
+	int quit=0;
+
+	// lets print this out one time only.. haha
+	sys_req(WRITE,DEFAULT_DEVICE,selections,&selectLen);
+
+
+	while(!quit) {
+		char *prompt = ANSI_COLOR_CYAN "\n ツ > " ANSI_COLOR_RESET;
+		int promptLen = strlen(prompt);
+
+		sys_req(WRITE, DEFAULT_DEVICE, prompt, &promptLen);
+
+		// get a command
+		memset(cmdBuffer,'\0', 100);
+		bufferSize = 99;
+
+		sys_req(READ, DEFAULT_DEVICE, cmdBuffer, &bufferSize);
+		sys_req(WRITE, DEFAULT_DEVICE, "\n", &bufferSize); //not sure how else to get a newline?
+	}
+
+}
  void settime(int hrs, int min, int sec){
  	
  	sethours(hrs);
