@@ -64,7 +64,7 @@ int shutdown(){
 }
 char* itoa(int num, char* buffer){
 	 int i = 0;
-	 if(number != 0){
+	 if(num != 0){
 		 int rem = num % 10;
 		 if(rem > 9){
 			 buffer[i++]= (rem-10) + 'a';
@@ -90,7 +90,7 @@ char* itoa(int num, char* buffer){
 	char *frnt = buffer;
 	char *end = frnt + strlen(buffer)-1;
 	char i;
-	while (end > front){
+	while (end > frnt){
 		i = *frnt;
 		*frnt = *end;
 		*end = i;
@@ -105,15 +105,15 @@ char* itoa(int num, char* buffer){
  void settime(int hrs, int min, int sec){
  	
  	sethours(hrs);
- 	setmin(mins);
- 	setsec(secs);
+ 	setmin(min);
+ 	setsec(sec);
  }
  
 int gethours(){
  	int hour;
  	outb(0X70,0x04);
  	unsigned char hrs = inb(0x71);
- 	hour = hours-6 * (hrs>>4);
+ 	hour = hour-6 * (hrs>>4);
 	return hour;
  }
  
@@ -169,7 +169,7 @@ void gettime(){
 	hr = gethours();
 	min = getmins();
 	sec = getseconds();
-
+ 
 	itoa(hr, hrs);
 	itoa(min, mins);
 	itoa(sec, secs);
