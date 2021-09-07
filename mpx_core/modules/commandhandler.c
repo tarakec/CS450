@@ -41,6 +41,67 @@ void command_handler(){
 	}
 
 }
+int shutdown(){
+
+    char *warning = "\nDo you want to Shut Down? [y/n] \n";
+    char response[4];
+    int length = strlen(warning);
+
+    sys_req(WRITE,DEFAULT_DEVICE,warning,&length);
+    sys_req(READ,DEFAULT_DEVICE,response,&length);
+
+    response[length] = '\0';
+
+    if(strcmp(response, "y") == 0) {
+        sys_req(WRITE,DEFAULT_DEVICE,"\n",&length);
+        return 1;
+    }
+    else{
+    }
+
+    return 0;
+
+}
+char* itoa(int num, char* buffer){
+	 int i = 0;
+	 if(number != 0){
+		 int rem = num % 10;
+		 if(rem > 9){
+			 buffer[i++]= (rem-10) + 'a';
+
+		 }
+		 else{
+			 buffer[i++] = rem + '0';
+		 }
+		 num = num/10;
+	 }
+	if else(num == 0){
+		buffer[i] = '0';
+		i++;
+		buffer[i]='\0';
+		return buffer;
+	}
+	buffer[i] = '\0';
+	reverse(buffer);
+
+	if(*buffer ==0){
+		return;
+	}
+	char *frnt = buffer;
+	char *end = frnt + strlen(buffer)-1;
+	char i;
+	while (end > front){
+		i = *frnt;
+		*frnt = *end;
+		*end = i;
+
+		frnt++;
+		end--;
+	}
+
+	return buffer;
+ }
+
  void settime(int hrs, int min, int sec){
  	
  	sethours(hrs);
@@ -98,3 +159,27 @@ int gethours(){
  	outb(0x71,bcd);
  	sti();
  	}
+void gettime(){
+	char time[10];
+	char hrs[4];
+	char mins[4];
+	char secs[4];
+	int hr, min, sec;
+	
+	hr = gethours();
+	min = getmins();
+	sec = getseconds();
+
+	itoa(hr, hrs);
+	itoa(min, mins);
+	itoa(sec, secs);
+
+	strcat(time, hrs);
+	strcat(time, ":");
+	strcat(time, mins);
+	strcat(time, ":");
+	strcat(time, secs);
+
+	int sizeOfTime = strlen(time);
+	sys_req(WRITE, DEFAULT_DEVICE,time,&sizeOfTime);
+}
