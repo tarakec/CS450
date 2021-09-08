@@ -149,7 +149,7 @@ void help(){
 	   char *settime= "Set_Time will allow you to set the current time of the operating system";
 	   int settimeSize=strlen(settime);
 
-	   char *sd= "Quit";
+	   char *sd= "Quit will shutdown the operating system.";
 	   int sdSize=strlen(sd);
 		
 		int bufferSize = 99;
@@ -233,7 +233,9 @@ void error(){
  	setHours(hrs);
  	setMin(min);
  	setSec(sec);
- }
+
+}
+
  
 int getHours(){
  	int hour;
@@ -288,6 +290,7 @@ int getHours(){
  	sti();
  	}
 
+
 void getTime(){
 	char time[10];
 	char hrs[4];
@@ -295,10 +298,11 @@ void getTime(){
 	char secs[4];
 	int hr, min, sec;
 	
+
 	hr = getHours();
 	min = getMins();
 	sec = getSeconds();
-
+ 
 	itoa(hr, hrs);
 	itoa(min, mins);
 	itoa(sec, secs);
@@ -312,6 +316,7 @@ void getTime(){
 	int sizeOfTime = strlen(time);
 	sys_req(WRITE, DEFAULT_DEVICE,time,&sizeOfTime);
 }
+
 
  void getDate(){
      int year, month, day;
@@ -419,3 +424,6 @@ void getTime(){
    		return 0;
    	}
    }
+
+
+
