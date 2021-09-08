@@ -6,20 +6,24 @@
 
 void command_handler();
 
-/**
- * Provides instructions on how to use each command.
- * @param command the current entry in the terminal
- */
-void help(char command[]);
+void help();
+
+int shutdown();
+
+void version();
 
 /**
- * Called during execuation and enables the operating system to read all of the available commands.
+ * Prints error message when invcalid command is entered
  */
+void error();
+
 
 /**
  * Retrieves the current date of the operating system.
  */
-void getdate();
+void getDate();
+
+
 
 /**
  * Sets the date of the operating system.
@@ -27,7 +31,51 @@ void getdate();
  * @param month the month
  * @param day the day
  */
-void setdate(int year, int month, int day);
+void setDate(int year, int month, int day);
+
+
+/*
+ * Sets the current year of the operating system.
+ * @param year is the year you want to set
+ */
+void setYear(int year);
+
+
+
+/*
+ * Gets the current year of the operating system.
+ */
+int getYear();
+
+
+
+/*
+ * Sets the current month of the operating system.
+ * @param month is the month you want to set
+ */
+void setMonth(int month);
+
+
+/*
+ * Gets the current month of the operating system.
+ */
+int getMonth();
+
+
+
+/*
+ * Sets the current day of the operating system.
+ * @param day is the day you want to set
+ */
+void setDay(int day);
+
+
+
+/*
+ * Gets the current day of the operating system.
+ */
+int getDay();
+
 
 /**
  * Sets the time of the operating system
@@ -35,46 +83,46 @@ void setdate(int year, int month, int day);
  * @param minutes the minute
  * @param seconds the second
  */
-void settime(int hours, int minutes, int seconds);
+void setTime(int hours, int minutes, int seconds);
 
 /**
  * Retrieves the current time of the operating system.
  */
-void gettime();
+void getTime();
 
 /**
  * Retrieves the current year of the operating system.
  */
 
-int gethours();
+int getHours();
 
 /**
  * Sets the current hour of the operating system.
  * @param hour the hour you want to set
  */
-void sethours(int hour);
+void setHours(int hour);
 
 /**
  * Gets the current minute of the operating system.
  */
-int getmins();
+int getMins();
 
 /**
  * Sets the current minute of the operating system.
  * @param min minute you want to set
  */
-void setmin(int min);
+void setMin(int min);
 
 /**
  * Gets the current second of the operating system.
  */
-int getseconds();
+int getSeconds();
 
 /**
  * Sets the current second of the operating system.
  * @param seconds the second you want to set
  */
-void setsec(int seconds);
+void setSec(int seconds);
 
 /**
  * Binary coded digit converter. Converts the time to the BCD format.
@@ -92,6 +140,7 @@ void reverse(char input[]);
 /**
  Yields the current running process.
  */
+
 
 #endif
 

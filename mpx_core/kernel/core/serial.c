@@ -103,24 +103,31 @@ int *polling(char *buffer, int *count){
    
    while(1){
 
+
+    //grabbing the letter from COM1
    	if (inb(COM1 + 5)&1){
    	  char letter = inb(COM1);
 
-      if(letter == '\033'){
+      //This is the check for arrow keys, skip the octal escape and the bracket 
+
+      if(letter == '\033'){ 
         letter = inb(COM1);
         letter = inb(COM1);
       }
    	  
+
+      //call on the key handler
    	  int result = special_keys(buffer, count, letter, sizePtr, cursorPtr);
 
+      //return 
    	  if (result == -1){
+        serial_print("\n");
    	  	break;
    	  }
    	  
    	}
    	
    }
-   
    
 return count;
 }
