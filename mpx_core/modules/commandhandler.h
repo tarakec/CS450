@@ -19,7 +19,7 @@ void help(char command[]);
 /**
  * Retrieves the current date of the operating system.
  */
-void getdate();
+void getDate();
 
 /**
  * Sets the date of the operating system.
@@ -27,7 +27,7 @@ void getdate();
  * @param month the month
  * @param day the day
  */
-void setdate(int year, int month, int day);
+void setDate(int year, int month, int day);
 
 /**
  * Sets the time of the operating system
@@ -35,6 +35,41 @@ void setdate(int year, int month, int day);
  * @param minutes the minute
  * @param seconds the second
  */
+
+/*
+ * Sets the current year of the operating system.
+ * @param year is the year you want to set
+ */
+void setYear(int year);
+
+/*
+ * Gets the current year of the operating system.
+ */
+int getYear();
+
+/*
+ * Sets the current month of the operating system.
+ * @param month is the month you want to set
+ */
+void setMonth(int month);
+
+/*
+ * Gets the current month of the operating system.
+ */
+int getMonth();
+
+/*
+ * Sets the current day of the operating system.
+ * @param day is the day you want to set
+ */
+void setDay(int day);
+
+/*
+ * Gets the current day of the operating system.
+ */
+int getDay();
+
+
 void settime(int hours, int minutes, int seconds);
 
 /**

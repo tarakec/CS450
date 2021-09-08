@@ -11,9 +11,12 @@
 //08 is month
 //09 is year 
 
- void getdate(){
-     char date[10];
+ void getDate(){
      int year, month, day;
+     char date[10];
+	 char days[4];
+	 char months[4];
+	 char years[4];
 
      day = getDay();
 	 month = getMonth();
@@ -94,4 +97,4 @@
  	    outb(0x71,bcd);
  	    sti();
    } 
- }
+ 
