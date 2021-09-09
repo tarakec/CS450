@@ -190,4 +190,41 @@ int gethours(){
  	    outb(0x71,bcd);
  	    sti();
    } 
+
+   void help(){
+	   char *ver[]= "version() will tell you what version module this is and when it was completed";
+	   int verSize=strlen(ver);
+	   
+	   char	*getdate []= "getDate() will tell you the current date of the operating system";
+	   int dateSize=strlen(getdate);
+
+	   char *setdate []= "setdate() will allow youto set the current date of the operating system";
+	   int dateSetSize=strlen(setdate);
+
+	   char *gettime []= "gettime() will tell you the current time of the operating system";
+	   int timeSize=strlen(gettime);
+
+	   char *settime []= "settime() will allow youto set the current time of the operating system";
+	   int settimeSize=strlen(settime);
+
+	   char *sd[]= "shutdown()";
+	   int sdSize=strlen(sd);
+		
+		bufferSize = 99;
+
+	   	sys_req(WRITE,DEFAULT_DEVICE,ver,&verSize);
+		sys_req(WRITE, DEFAULT_DEVICE, "\n", &bufferSize);
+		sys_req(WRITE,DEFAULT_DEVICE,getDate,&dateSize);
+		sys_req(WRITE, DEFAULT_DEVICE, "\n", &bufferSize);
+		sys_req(WRITE,DEFAULT_DEVICE,setdate,&dateSetSize);
+		sys_req(WRITE, DEFAULT_DEVICE, "\n", &bufferSize);
+		sys_req(WRITE,DEFAULT_DEVICE,gettime,&timeSize);
+		sys_req(WRITE, DEFAULT_DEVICE, "\n", &bufferSize);
+		sys_req(WRITE,DEFAULT_DEVICE,settime,&settimeSize);
+		sys_req(WRITE, DEFAULT_DEVICE, "\n", &bufferSize);
+		sys_req(WRITE,DEFAULT_DEVICE,sd,&sdSize);
+		sys_req(WRITE, DEFAULT_DEVICE, "\n", &bufferSize);
+
+
+   }
  
