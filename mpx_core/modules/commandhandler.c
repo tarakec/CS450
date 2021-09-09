@@ -55,20 +55,21 @@ void command_handler(){
 		}
 		else if((strcmp(cmdBuffer, "2")  == 0) || (strcmp(cmdBuffer, "Set_Date") == 0)){
 			
-			int d_m_size = 8;
+			int d_size = 8;
+			int m_size = 8;
 			int y_size = 16;
 
 			char day[8];
 			char month[8];
 			char year[16];
 
-			sys_req(WRITE, DEFAULT_DEVICE, "Enter the month [mm]: ",&d_m_size);
-			sys_req(READ,DEFAULT_DEVICE,month,&d_m_size);
-			sys_req(WRITE,DEFAULT_DEVICE,"\n",&d_m_size);
+			sys_req(WRITE, DEFAULT_DEVICE, "Enter the month [mm]: ",&m_size);
+			sys_req(READ,DEFAULT_DEVICE,month,&m_size);
+			sys_req(WRITE,DEFAULT_DEVICE,"\n",&m_size);
 
-			sys_req(WRITE, DEFAULT_DEVICE, "Enter the day [dd]: ",&d_m_size);
-			sys_req(READ,DEFAULT_DEVICE,day,&d_m_size);
-			sys_req(WRITE,DEFAULT_DEVICE,"\n",&d_m_size);
+			sys_req(WRITE, DEFAULT_DEVICE, "Enter the day [dd]: ",&d_size);
+			sys_req(READ,DEFAULT_DEVICE,day,&d_size);
+			sys_req(WRITE,DEFAULT_DEVICE,"\n",&d_size);
 
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the year [yy]: ",&y_size);
 			sys_req(READ,DEFAULT_DEVICE,year,&y_size);
@@ -366,9 +367,9 @@ void getTime(){
 	 itoa(month, months);
 	 itoa(year, years);
 
-	 strcat(date, days);
-	 strcat(date, "-");
 	 strcat(date, months);
+	 strcat(date, "-");
+	 strcat(date, days);
 	 strcat(date, "-");
 	 strcat(date, years);
 
@@ -385,7 +386,7 @@ void getTime(){
 
    int getMonth(){
        int month;
-       outb(0x70, 0x09);
+       outb(0x70, 0x08);
        unsigned char mon= inb(0x71);
        month = mon-6 * (mon>>4);
 	   return month;
