@@ -137,10 +137,9 @@ char *itoa(int number,char buffer[]);
  */
 void reverse(char input[]);
 
-/**
- Yields the current running process.
- */
 
+void clear();
 
+void menu();
 #endif
 

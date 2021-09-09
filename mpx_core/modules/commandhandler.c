@@ -12,19 +12,20 @@
 #define F_RED "\x1b[31m"
 #define F_GREEN "\x1b[32m"
 #define F_BLUE "\x1b[34m"
-#define B_RED "\x1b[48;5;1m"
+
 
 
 void command_handler(){
 
 	//initial greeting
-	char *greetings = F_CYAN "\n ~Hello :) Welcome to 'Four of a Kind' MPX~ \nWhat would you like to do? \n1)Help\n2)Set_Date\n3)Get_Date\n4)Set_Time\n5)Get_Time\n6)Version\n99)Quit" RESET;
-
+	char *greetings = F_CYAN "\nHello :) Welcome to 'Four of a Kind' MPX\n" RESET;
+	
 	int greetinglen = strlen(greetings);
 
 	// print the greeting
 	sys_req(WRITE,DEFAULT_DEVICE,greetings,&greetinglen);
 
+	menu();
 
 	char cmdBuffer[100]; //buffer for command read in
 	int bufferSize; //size of the buffer
@@ -33,7 +34,7 @@ void command_handler(){
 
 
 	while(!quit) {
-		char *prompt = F_YELLOW"\n Enter Your Choice: " RESET;
+		char *prompt = F_CYAN"\n Enter Your Choice: " RESET;
 		int promptLen = strlen(prompt);
 
 		sys_req(WRITE, DEFAULT_DEVICE, prompt, &promptLen);
@@ -61,15 +62,15 @@ void command_handler(){
 			char month[8];
 			char year[16];
 
-			sys_req(WRITE, DEFAULT_DEVICE, "Enter the month: ",&d_m_size);
+			sys_req(WRITE, DEFAULT_DEVICE, "Enter the month [mm]: ",&d_m_size);
 			sys_req(READ,DEFAULT_DEVICE,month,&d_m_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&d_m_size);
 
-			sys_req(WRITE, DEFAULT_DEVICE, "Enter the day: ",&d_m_size);
+			sys_req(WRITE, DEFAULT_DEVICE, "Enter the day [dd]: ",&d_m_size);
 			sys_req(READ,DEFAULT_DEVICE,day,&d_m_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&d_m_size);
 
-			sys_req(WRITE, DEFAULT_DEVICE, "Enter the year: ",&y_size);
+			sys_req(WRITE, DEFAULT_DEVICE, "Enter the year [yy]: ",&y_size);
 			sys_req(READ,DEFAULT_DEVICE,year,&y_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&y_size);
 
@@ -95,15 +96,15 @@ void command_handler(){
 			char min[8];
 			char sec[16];
 
-			sys_req(WRITE, DEFAULT_DEVICE, "Enter the hours: ",&t_size);
+			sys_req(WRITE, DEFAULT_DEVICE, "Enter the hours [hh]: ",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,hour,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
 
-			sys_req(WRITE, DEFAULT_DEVICE, "Enter the minutes: ",&t_size);
+			sys_req(WRITE, DEFAULT_DEVICE, "Enter the minutes [mm]: ",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,min,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
 
-			sys_req(WRITE, DEFAULT_DEVICE, "Enter the seconds: ",&t_size);
+			sys_req(WRITE, DEFAULT_DEVICE, "Enter the seconds [ss]: ",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,sec,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
 
@@ -123,6 +124,12 @@ void command_handler(){
 		else if((strcmp(cmdBuffer, "6")  == 0) || (strcmp(cmdBuffer, "Version") == 0)){
 			version();
 		}
+		else if((strcmp(cmdBuffer, "menu") == 0) || (strcmp(cmdBuffer, "Menu") == 0)){
+			menu();
+		}
+		else if ((strcmp(cmdBuffer,"7") ==0) || (strcmp(cmdBuffer, "Clear") == 0)){
+			clear();
+		}
 		else {
 			error();
 		}
@@ -134,38 +141,64 @@ void command_handler(){
 
 
 void help(){
-	   char *ver= "Version will tell you what the current module is and when it was completed.";
+
+	   char *a = "\n/----------Version----------/\n";
+	   int aLen = strlen(a);
+	   char *ver= F_YELLOW "Version will tell you what the current module is and when it was completed.\n\n" RESET;
 	   int verSize=strlen(ver);
 	   
-	   char	*getdate= "Get_Date will tell you the current date of the operating system.";
+	   char *b = "/----------Get_Date----------/\n";
+	   int bLen = strlen(b);
+	   char	*getdate= F_YELLOW "Get_Date will tell you the current date of the operating system.\n\n" RESET;
 	   int dateSize=strlen(getdate);
 
-	   char *setdate= "Set_Date will allow you to set the current date of the operating system.";
+	   char *c = "/----------Set_Date----------/\n";
+	   int cLen = strlen(c);
+	   char *setdate= F_YELLOW "Set_Date will allow you to set the current date of the operating system.\n\n"RESET;
 	   int dateSetSize=strlen(setdate);
 
-	   char *gettime= "Get_Time will tell you the current time of the operating system.";
+	   char *d = "/----------Get_Time----------/\n";
+	   int dLen = strlen(d);
+	   char *gettime= F_YELLOW "Get_Time will tell you the current time of the operating system.\n\n"RESET;
 	   int timeSize=strlen(gettime);
 
-	   char *settime= "Set_Time will allow you to set the current time of the operating system";
+	   char *e = "/----------Set_Time----------/\n";
+	   int eLen = strlen(e);
+	   char *settime= F_YELLOW "Set_Time will allow you to set the current time of the operating system.\n\n"RESET;
 	   int settimeSize=strlen(settime);
 
-	   char *sd= "Quit will shutdown the operating system.";
+	   char *f = "/----------Quit---------/\n";
+	   int fLen = strlen(f);
+	   char *sd= F_YELLOW "Quit will shutdown the operating system.\n\n" RESET;
 	   int sdSize=strlen(sd);
-		
-		int bufferSize = 99;
 
+	   char *g = "/----------Menu---------/\n";
+	   int gLen = strlen(g);
+	   char *menu= F_YELLOW "Menu will display the list of available commands.\n\n" RESET;
+	   int menuLen=strlen(menu);
+
+	   char *h = "/----------Clear---------/\n";
+	   int hLen = strlen(h);
+	   char *clear= F_YELLOW "Clear will empty out of the screen.\n\n" RESET;
+	   int clearLen=strlen(clear);
+
+
+		sys_req(WRITE,DEFAULT_DEVICE,a,&aLen);
 	   	sys_req(WRITE,DEFAULT_DEVICE,ver,&verSize);
-		sys_req(WRITE, DEFAULT_DEVICE, "\n", &bufferSize);
+		sys_req(WRITE, DEFAULT_DEVICE, b, &bLen);
 		sys_req(WRITE,DEFAULT_DEVICE,getdate,&dateSize);
-		sys_req(WRITE, DEFAULT_DEVICE, "\n", &bufferSize);
+		sys_req(WRITE, DEFAULT_DEVICE, c, &cLen);
 		sys_req(WRITE,DEFAULT_DEVICE,setdate,&dateSetSize);
-		sys_req(WRITE, DEFAULT_DEVICE, "\n", &bufferSize);
+		sys_req(WRITE, DEFAULT_DEVICE, d, &dLen);
 		sys_req(WRITE,DEFAULT_DEVICE,gettime,&timeSize);
-		sys_req(WRITE, DEFAULT_DEVICE, "\n", &bufferSize);
+		sys_req(WRITE, DEFAULT_DEVICE, e, &eLen);
 		sys_req(WRITE,DEFAULT_DEVICE,settime,&settimeSize);
-		sys_req(WRITE, DEFAULT_DEVICE, "\n", &bufferSize);
+		sys_req(WRITE, DEFAULT_DEVICE, f, &fLen);
 		sys_req(WRITE,DEFAULT_DEVICE,sd,&sdSize);
-		sys_req(WRITE, DEFAULT_DEVICE, "\n", &bufferSize);
+		sys_req(WRITE, DEFAULT_DEVICE, g, &gLen);
+		sys_req(WRITE,DEFAULT_DEVICE, menu, &menuLen);
+		sys_req(WRITE, DEFAULT_DEVICE, h, &hLen);
+		sys_req(WRITE,DEFAULT_DEVICE, clear, &clearLen);
 
 
    }
@@ -425,5 +458,21 @@ void getTime(){
    	}
    }
 
+   void clear(){
+   	char *CLEAR_SCREEN = "\x1b[2J";
+   	int clear = strlen(CLEAR_SCREEN);
+   	sys_req(WRITE,DEFAULT_DEVICE,CLEAR_SCREEN,&clear);
+   	
+   }
+
+   void menu(){
+   	//initial greeting
+	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"1)Help\n2)Set_Date\n3)Get_Date\n4)Set_Time\n5)Get_Time\n6)Version\n7)Clear\n99)Quit\n" RESET;
+
+	int menulen = strlen(menu);
+
+	// print the greeting
+	sys_req(WRITE,DEFAULT_DEVICE,menu,&menulen);
+   }
 
 
