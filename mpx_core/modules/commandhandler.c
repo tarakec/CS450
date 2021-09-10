@@ -175,46 +175,46 @@ void command_handler(){
 
 
 void help(){
-
-	   char *a = "\n/----------Version----------/\n";
-	   int aLen = strlen(a);
-	   char *ver= F_YELLOW "Version will tell you what the current module is and when it was completed.\n\n" RESET;
-	   int verSize=strlen(ver);
-	   
-	   char *b = "/----------Get_date----------/\n";
-	   int bLen = strlen(b);
-	   char	*getdate= F_YELLOW "Get_date will tell you the current date of the operating system.\n\n" RESET;
-	   int dateSize=strlen(getdate);
-
-	   char *c = "/----------Set_date----------/\n";
-	   int cLen = strlen(c);
-	   char *setdate= F_YELLOW "Set_date will allow you to set the current date of the operating system.\n\n"RESET;
-	   int dateSetSize=strlen(setdate);
-
-	   char *d = "/----------Get_time----------/\n";
-	   int dLen = strlen(d);
-	   char *gettime= F_YELLOW "Get_time will tell you the current time of the operating system.\n\n"RESET;
-	   int timeSize=strlen(gettime);
-
-	   char *e = "/----------Set_time----------/\n";
-	   int eLen = strlen(e);
-	   char *settime= F_YELLOW "Set_time will allow you to set the current time of the operating system.\n\n"RESET;
-	   int settimeSize=strlen(settime);
-
-	   char *f = "/----------Quit---------/\n";
-	   int fLen = strlen(f);
-	   char *sd= F_YELLOW "Quit will shutdown the operating system.\n\n" RESET;
-	   int sdSize=strlen(sd);
-
+	
 	   char *g = "/----------Menu---------/\n";
 	   int gLen = strlen(g);
 	   char *menu= F_YELLOW "Menu will display the list of available commands.\n\n" RESET;
 	   int menuLen=strlen(menu);
+	
+	   char *c = "/----------Set_date (Option: 2)----------/\n";
+	   int cLen = strlen(c);
+	   char *setdate= F_YELLOW "Set_date will allow you to set the current date of the operating system.\n\n"RESET;
+	   int dateSetSize=strlen(setdate);
+	
+	   char *b = "/----------Get_date (Option: 3)----------/\n";
+	   int bLen = strlen(b);
+	   char	*getdate= F_YELLOW "Get_date will tell you the current date of the operating system.\n\n" RESET;
+	   int dateSize=strlen(getdate);
 
-	   char *h = "/----------Clear---------/\n";
+	   char *e = "/----------Set_time (Option: 4)----------/\n";
+	   int eLen = strlen(e);
+	   char *settime= F_YELLOW "Set_time will allow you to set the current time of the operating system.\n\n"RESET;
+	   int settimeSize=strlen(settime);
+	
+	   char *d = "/----------Get_time (Option: 5)----------/\n";
+	   int dLen = strlen(d);
+	   char *gettime= F_YELLOW "Get_time will tell you the current time of the operating system.\n\n"RESET;
+	   int timeSize=strlen(gettime);
+	
+		char *a = "\n/----------Version (Option: 6)----------/\n";
+	   int aLen = strlen(a);
+	   char *ver= F_YELLOW "Version will tell you what the current module is and when it was completed.\n\n" RESET;
+	   int verSize=strlen(ver);
+
+	   char *h = "/----------Clear (Option: 7)---------/\n";
 	   int hLen = strlen(h);
 	   char *clear= F_YELLOW "Clear will empty out of the screen.\n\n" RESET;
 	   int clearLen=strlen(clear);
+	
+	   char *f = "/----------Quit (Option: 99)---------/\n";
+	   int fLen = strlen(f);
+	   char *sd= F_YELLOW "Quit will shutdown the operating system.\n\n" RESET;
+	   int sdSize=strlen(sd);
 
 
 		sys_req(WRITE,DEFAULT_DEVICE,a,&aLen);
