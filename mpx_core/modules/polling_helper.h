@@ -1,4 +1,7 @@
 
+/** file polling_helper.h
+ * Aids the polling function in processing the user input.
+ */
 
 #ifndef _POLLING_HELPER_H
 #define _POLLING_HELPER_H
@@ -12,9 +15,25 @@
 #define BACKSPACE 8
 #define DELETE 127
 
-
+/**
+ * special_keys deals with keystrokes to the terminal and processing them. It deals with the special keys, tab, return
+ * up, down, right, left, backspace, and delete. It also deals with normal printable characters. 
+ * @param buffer, reads in the user input
+ * @param count, the size of the buffer
+ * @param letter, the keystroke that was processed by the polling function
+ * @param sizePtr, the actual size of the command in the terminal
+ * @param cursorPtr, where the cursor is in the terminal
+ */
 int special_keys(char* buffer, int* count, char letter, int* sizePtr, int* cursorPtr);
 
+
+/**
+ * Enables the user to delete/backspace in the terminal while removing it from the buffer.
+ * @param bugger, collects the user input
+ * @param count, the size of the buffer
+ * @param sizePtr, the actual size of the command in the terminal
+ * @param cursorPtr, where the cursor is in the terminal
+ */
 
 void backspace(char* buffer, int *count, int* sizePtr, int *cursorPtr);
 

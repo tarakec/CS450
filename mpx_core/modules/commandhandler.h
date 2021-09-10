@@ -1,19 +1,44 @@
 
+/** file commandhandler.h
+ * Interprets commands entered by the user and calls the corresponding functions.
+ */
+
 #ifndef _COMHAND_H
 #define _COMHAND_H
 
+#define F_CYAN "\x1b[36m"
+#define F_YELLOW "\x1b[33m"
+#define RESET "\x1b[0m"
+#define F_RED "\x1b[31m"
+#define F_GREEN "\x1b[32m"
+#define F_BLUE "\x1b[34m"
 
 
+
+/**
+ * Interprets commands entered by the user and calls the corresponding functions.
+ */
 void command_handler();
 
+
+/**
+ * Displays the list of available commands and what they do.
+ */
 void help();
 
+/**
+ * Sends the signal shutdown to the machine.
+ */
 int shutdown();
 
+
+/**
+ * Displays the current version number and the date it was last updated.
+ */
 void version();
 
 /**
- * Prints error message when invcalid command is entered
+ * Prints an error message when an invalid command is entered.
  */
 void error();
 
@@ -70,7 +95,6 @@ int getMonth();
 void setDay(int day);
 
 
-
 /*
  * Gets the current day of the operating system.
  */
@@ -85,16 +109,18 @@ int getDay();
  */
 void setTime(int hours, int minutes, int seconds);
 
+
 /**
  * Retrieves the current time of the operating system.
  */
 void getTime();
 
-/**
- * Retrieves the current year of the operating system.
- */
 
+/**
+ * Retrieves the current hour of the operating system.
+ */
 int getHours();
+
 
 /**
  * Sets the current hour of the operating system.
@@ -102,10 +128,12 @@ int getHours();
  */
 void setHours(int hour);
 
+
 /**
  * Gets the current minute of the operating system.
  */
 int getMins();
+
 
 /**
  * Sets the current minute of the operating system.
@@ -113,10 +141,12 @@ int getMins();
  */
 void setMin(int min);
 
+
 /**
  * Gets the current second of the operating system.
  */
 int getSeconds();
+
 
 /**
  * Sets the current second of the operating system.
@@ -124,22 +154,32 @@ int getSeconds();
  */
 void setSec(int seconds);
 
+
 /**
- * Binary coded digit converter. Converts the time to the BCD format.
- * @param time time of the operating system
+ * Converts an integer to a character string. 
+ * @param num, the integer you want to convert to character string. 
+ * @param buffer, the string you want to be converted from the integer. 
  */
 
-char *itoa(int number,char buffer[]);
+char *itoa(int num,char buffer[]);
 
 /**
  * Reverses a character array.
- * @param input the character array that will be reversed
+ * @param buffer the character array that will be reversed
  */
 void reverse(char input[]);
 
 
+/**
+ * Clears the terminal screen.
+ */
 void clear();
 
+
+/**
+ * Prompts the user with a menu of actions they can perform with the corresponding numbers to call them.
+ */
 void menu();
+
 #endif
 

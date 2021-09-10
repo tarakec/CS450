@@ -6,14 +6,6 @@
 #include <../include/core/io.h>
 #include <../include/core/serial.h>
 
-#define F_CYAN "\x1b[36m"
-#define F_YELLOW "\x1b[33m"
-#define RESET "\x1b[0m"
-#define F_RED "\x1b[31m"
-#define F_GREEN "\x1b[32m"
-#define F_BLUE "\x1b[34m"
-
-
 
 void command_handler(){
 
@@ -47,88 +39,129 @@ void command_handler(){
 
 
 		//commands up to R1
-		if((strcmp(cmdBuffer, "99") == 0) || (strcmp(cmdBuffer, "Quit") == 0)){
+		if((strcmp(cmdBuffer, "99") == 0) || (strcmp(cmdBuffer, "Quit") == 0) || (strcmp(cmdBuffer, "quit") == 0)){
 			quit = shutdown();
 		}
-		else if((strcmp(cmdBuffer, "1") == 0 ) || (strcmp(cmdBuffer, "Help") == 0)){
+		else if((strcmp(cmdBuffer, "1") == 0 ) || (strcmp(cmdBuffer, "Help") == 0) || (strcmp(cmdBuffer, "help") == 0)){
 			help();
 		}
-		else if((strcmp(cmdBuffer, "2")  == 0) || (strcmp(cmdBuffer, "Set_Date") == 0)){
+		else if((strcmp(cmdBuffer, "2")  == 0) || (strcmp(cmdBuffer, "Set_date") == 0)){
 			
 			int d_size = 8;
 			int m_size = 8;
-			int y_size = 16;
+			int y_size = 8;
 
 			char day[8];
 			char month[8];
-			char year[16];
+			char year[8];
+			memset(day,'\0',8);
+			memset(month,'\0',8);
+			memset(year,'\0',8);
 
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the month [mm]: ",&m_size);
 			sys_req(READ,DEFAULT_DEVICE,month,&m_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&m_size);
+			int m = atoi(month);
+			if(m > 12 || m <= 0){
+				memset(month,'\0',8);
+				sys_req(WRITE,DEFAULT_DEVICE,"Please enter a valid month between 1-12: ", &m_size);
+				sys_req(READ,DEFAULT_DEVICE,month,&m_size);
+				m = atoi(month);
+			}
 
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the day [dd]: ",&d_size);
 			sys_req(READ,DEFAULT_DEVICE,day,&d_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&d_size);
+			int d = atoi(day);
+			if(d > 31 || d <= 0){
+				memset(day,'\0',8);
+				sys_req(WRITE,DEFAULT_DEVICE,"Please enter a valid day between 1-32: ", &d_size);
+				sys_req(READ,DEFAULT_DEVICE,day,&d_size);
+				d = atoi(day);
+			}
 
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the year [yy]: ",&y_size);
 			sys_req(READ,DEFAULT_DEVICE,year,&y_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&y_size);
-
-
-			int d = atoi(day);
-			int m = atoi(month);
 			int y = atoi(year);
+			if(y > 99 || y < 0){
+				memset(year,'\0',8);
+				sys_req(WRITE,DEFAULT_DEVICE,"Please enter a valid year between 0-99: ", &y_size);
+				sys_req(READ,DEFAULT_DEVICE,year,&y_size);
+				y = atoi(year);
+			}
 
 			setDate(m,d,y);
+
 
 			sys_req(WRITE,DEFAULT_DEVICE, "Successfully changed the date...\n", &y_size);
 
 
 		}
-		else if((strcmp(cmdBuffer, "3") == 0 ) || (strcmp(cmdBuffer, "Get_Date") == 0)){
+		else if((strcmp(cmdBuffer, "3") == 0 ) || (strcmp(cmdBuffer, "Get_date") == 0)){
 			getDate();
 		}
-		else if((strcmp(cmdBuffer, "4")  == 0) || (strcmp(cmdBuffer, "Set_Time") == 0)){
+		else if((strcmp(cmdBuffer, "4")  == 0) || (strcmp(cmdBuffer, "Set_time") == 0)){
 			
 			int t_size = 8;
 
 			char hour[8];
 			char min[8];
-			char sec[16];
+			char sec[8];
+			memset(hour,'\0',8);
+			memset(min,'\0',8);
+			memset(sec,'\0',8);
 
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the hours [hh]: ",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,hour,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
+			int h = atoi(hour);
+			if(h > 24 || h <= 0){
+				memset(hour,'\0',8);
+				sys_req(WRITE,DEFAULT_DEVICE,"Please enter a valid hour between 1-24: ", &t_size);
+				sys_req(READ,DEFAULT_DEVICE,hour,&t_size);
+				h = atoi(hour);
+			}
 
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the minutes [mm]: ",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,min,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
+			int m = atoi(min);
+			if(m > 59 || m < 0){
+				memset(min,'\0',8);
+				sys_req(WRITE,DEFAULT_DEVICE,"Please enter valid minutes between 0-59: ", &t_size);
+				sys_req(READ,DEFAULT_DEVICE,min,&t_size);
+				m = atoi(min);
+			}
+
 
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the seconds [ss]: ",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,sec,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
-
-
-			int h = atoi(hour);
-			int m = atoi(min);
 			int s = atoi(sec);
+			if(s > 59 || s < 0){
+				memset(sec,'\0',8);
+				sys_req(WRITE,DEFAULT_DEVICE,"Please enter valid seconds between 1-12: ", &t_size);
+				sys_req(READ,DEFAULT_DEVICE,sec,&t_size);
+				s = atoi(sec);
+			}
 
+			
 			setTime(h,m,s);
 
 			sys_req(WRITE,DEFAULT_DEVICE, "Successfully changed the time...\n", &t_size);
 
 		}
-		else if((strcmp(cmdBuffer, "5") == 0 ) || (strcmp(cmdBuffer, "Get_Time") == 0)){
+		else if((strcmp(cmdBuffer, "5") == 0 ) || (strcmp(cmdBuffer, "Get_time") == 0)){
 			getTime();
 		}
-		else if((strcmp(cmdBuffer, "6")  == 0) || (strcmp(cmdBuffer, "Version") == 0)){
+		else if((strcmp(cmdBuffer, "6")  == 0) || (strcmp(cmdBuffer, "Version") == 0) || (strcmp(cmdBuffer, "version") == 0)){
 			version();
 		}
 		else if((strcmp(cmdBuffer, "menu") == 0) || (strcmp(cmdBuffer, "Menu") == 0)){
 			menu();
 		}
-		else if ((strcmp(cmdBuffer,"7") ==0) || (strcmp(cmdBuffer, "Clear") == 0)){
+		else if ((strcmp(cmdBuffer,"7") ==0) || (strcmp(cmdBuffer, "clear") == 0) || (strcmp(cmdBuffer, "Clear") == 0)){
 			clear();
 		}
 		else {
@@ -148,24 +181,24 @@ void help(){
 	   char *ver= F_YELLOW "Version will tell you what the current module is and when it was completed.\n\n" RESET;
 	   int verSize=strlen(ver);
 	   
-	   char *b = "/----------Get_Date----------/\n";
+	   char *b = "/----------Get_date----------/\n";
 	   int bLen = strlen(b);
-	   char	*getdate= F_YELLOW "Get_Date will tell you the current date of the operating system.\n\n" RESET;
+	   char	*getdate= F_YELLOW "Get_date will tell you the current date of the operating system.\n\n" RESET;
 	   int dateSize=strlen(getdate);
 
-	   char *c = "/----------Set_Date----------/\n";
+	   char *c = "/----------Set_date----------/\n";
 	   int cLen = strlen(c);
-	   char *setdate= F_YELLOW "Set_Date will allow you to set the current date of the operating system.\n\n"RESET;
+	   char *setdate= F_YELLOW "Set_date will allow you to set the current date of the operating system.\n\n"RESET;
 	   int dateSetSize=strlen(setdate);
 
-	   char *d = "/----------Get_Time----------/\n";
+	   char *d = "/----------Get_time----------/\n";
 	   int dLen = strlen(d);
-	   char *gettime= F_YELLOW "Get_Time will tell you the current time of the operating system.\n\n"RESET;
+	   char *gettime= F_YELLOW "Get_time will tell you the current time of the operating system.\n\n"RESET;
 	   int timeSize=strlen(gettime);
 
-	   char *e = "/----------Set_Time----------/\n";
+	   char *e = "/----------Set_time----------/\n";
 	   int eLen = strlen(e);
-	   char *settime= F_YELLOW "Set_Time will allow you to set the current time of the operating system.\n\n"RESET;
+	   char *settime= F_YELLOW "Set_time will allow you to set the current time of the operating system.\n\n"RESET;
 	   int settimeSize=strlen(settime);
 
 	   char *f = "/----------Quit---------/\n";
@@ -203,6 +236,7 @@ void help(){
 
 
    }
+   
 void version(){
 	char *version = "\nVersion R1 \nLast Updated on 9/9/2021\n";
 	int length = strlen(version);
@@ -468,7 +502,7 @@ void getTime(){
 
    void menu(){
    	//initial greeting
-	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"1)Help\n2)Set_Date\n3)Get_Date\n4)Set_Time\n5)Get_Time\n6)Version\n7)Clear\n99)Quit\n" RESET;
+	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"1)Help\n2)Set_date\n3)Get_date\n4)Set_time\n5)Get_time\n6)Version\n7)clear\n99)Quit\n" RESET;
 
 	int menulen = strlen(menu);
 
