@@ -120,7 +120,7 @@ void command_handler(){
 				sys_req(READ,DEFAULT_DEVICE,min,&t_size);
 			}
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
-
+ 
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the seconds [ss]: ",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,sec,&t_size);
 			if(sec>60){
