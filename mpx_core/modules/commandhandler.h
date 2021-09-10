@@ -124,6 +124,11 @@ char *itoa(int number,char buffer[]);
  */
 void reverse(char input[]);
 
+/**  
+ * SHows all the commands a user can do with a description of each function
+ */
+void help();
+
 /**
  Yields the current running process.
  */
