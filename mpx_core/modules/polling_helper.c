@@ -3,11 +3,12 @@
 #include "mpx_supt.h"
 #include <stdint.h>
 #include <string.h>
+#include "commandhandler.h"
 
-
+//variable that prints the prompt on command line
+int CHOICE = 1;
 
 int special_keys(char* buffer, int* count, char letter, int* sizePtr, int* cursorPtr){
-
 
 	int promptLen = strlen(PROMPT);
 
@@ -25,9 +26,12 @@ int special_keys(char* buffer, int* count, char letter, int* sizePtr, int* curso
 			j++;
 		}
 
+		//printing of the buffer
 		serial_print("\033[1000D");
 		serial_print("\033[0K");
-		sys_req(WRITE,DEFAULT_DEVICE,PROMPT,&promptLen);
+		if (CHOICE){
+			sys_req(WRITE,DEFAULT_DEVICE,PROMPT,&promptLen);
+		}
 		serial_print(buffer);
 		serial_print("\033[1000D");
 
@@ -112,7 +116,11 @@ int special_keys(char* buffer, int* count, char letter, int* sizePtr, int* curso
 				//printing of the buffer				
 				serial_print("\033[1000D");
 				serial_print("\033[0K");
-				sys_req(WRITE,DEFAULT_DEVICE,PROMPT,&promptLen);
+
+				//if a normal command, then print the prompt, if not, then don't
+				if (CHOICE){
+					sys_req(WRITE,DEFAULT_DEVICE,PROMPT,&promptLen);
+				}
 				serial_print(buffer);
 				serial_print("\033[1000D");
 
@@ -123,11 +131,21 @@ int special_keys(char* buffer, int* count, char letter, int* sizePtr, int* curso
 				(*sizePtr)++;
 				(*cursorPtr)++;
 
-				//getting the cursor back to its position
-				while (i < (*cursorPtr + 13)){
+				//getting the cursor back to its position, with prompt
+				if (CHOICE){
+					while (i < (*cursorPtr + 13)){
 					serial_print("\033[C");
 					i++;
+					}
 				}
+				else{ 
+					//getting the cursor back to position without prompt
+					while (i < (*cursorPtr)){
+					serial_print("\033[C");
+					i++;
+					}
+				}
+				
 
 			}
 	}
@@ -164,16 +182,31 @@ void backspace(char *buffer, int *count, int *sizePtr, int *cursorPtr) {
 			//printing of the buffer
 			serial_print("\033[1000D");
 			serial_print("\033[0K");
-			sys_req(WRITE,DEFAULT_DEVICE,PROMPT,&promptLen);
+
+			if (CHOICE){
+				sys_req(WRITE,DEFAULT_DEVICE,PROMPT,&promptLen);
+			}
 			serial_print(buffer);
 			serial_print("\033[1000D");
 
 			//replacing the cursor back to its position
 			int i = 0;
-			while (i < (*cursorPtr + 13)){
-					serial_print("\033[C");
-					i++;
+
+			//getting the cursor back to its position, with prompt
+			if (CHOICE){
+				while (i < (*cursorPtr + 13)){
+				serial_print("\033[C");
+				i++;
 				}
+			}
+			else{ 
+			//getting the cursor back to position without prompt
+				while (i < (*cursorPtr)){
+				serial_print("\033[C");
+				i++;
+				}
+			}
+
 
 
 	}

@@ -4,7 +4,9 @@
 #include <string.h>
 #include <../include/core/io.h>
 #include <../include/core/serial.h>
+#include "polling_helper.h"
 
+extern int CHOICE;
 
 void command_handler(){
 
@@ -59,6 +61,7 @@ void command_handler(){
 			memset(month,'\0',8);
 			memset(year,'\0',8);
 
+			CHOICE = 0;
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the month [mm]:\n",&m_size);
 			sys_req(READ,DEFAULT_DEVICE,month,&m_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&m_size);
@@ -70,6 +73,7 @@ void command_handler(){
 				m = atoi(month);
 			}
 
+			CHOICE = 0;
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the day [dd]:\n",&d_size);
 			sys_req(READ,DEFAULT_DEVICE,day,&d_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&d_size);
@@ -81,6 +85,7 @@ void command_handler(){
 				d = atoi(day);
 			}
 
+			CHOICE = 0;
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the year [yy]:\n",&y_size);
 			sys_req(READ,DEFAULT_DEVICE,year,&y_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&y_size);
@@ -97,6 +102,7 @@ void command_handler(){
 
 			sys_req(WRITE,DEFAULT_DEVICE, "Successfully changed the date...\n", &y_size);
 
+			CHOICE = 1;
 
 		}
 		else if((strcmp(cmdBuffer, "3") == 0 ) || (strcmp(cmdBuffer, "Get_date") == 0)){
@@ -113,6 +119,7 @@ void command_handler(){
 			memset(min,'\0',8);
 			memset(sec,'\0',8);
 
+			CHOICE = 0;
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the hours [hh]:\n",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,hour,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
@@ -124,6 +131,7 @@ void command_handler(){
 				h = atoi(hour);
 			}
 
+			CHOICE = 0;
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the minutes [mm]:\n",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,min,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
@@ -135,7 +143,7 @@ void command_handler(){
 				m = atoi(min);
 			}
 
-
+			CHOICE = 0;
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the seconds [ss]:\n",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,sec,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
@@ -151,6 +159,8 @@ void command_handler(){
 			setTime(h,m,s);
 
 			sys_req(WRITE,DEFAULT_DEVICE, "Successfully changed the time...\n", &t_size);
+
+			CHOICE = 1;
 
 		}
 		else if((strcmp(cmdBuffer, "5") == 0 ) || (strcmp(cmdBuffer, "Get_time") == 0)){
@@ -481,6 +491,8 @@ void getTime(){
    }
 
    int shutdown(){
+   	CHOICE = 0;
+
    	char* prompt = F_RED "Are you sure you would like to quit? [y/n] \n" RESET;
    	int len = strlen(prompt);
    	sys_req(WRITE,DEFAULT_DEVICE,prompt,&len);
@@ -490,9 +502,11 @@ void getTime(){
    	sys_req(READ,DEFAULT_DEVICE,response,&length);
 
    	if((strcmp(response, "y") == 0)|| (strcmp(response, "yes") == 0)){
+   		CHOICE = 1;
    		return 1;
    	}
    	else{
+   		CHOICE = 1;
    		char* failed = F_RED "Shutdown Disabled... \n" RESET;
    		int failedLen = strlen(failed);
    		sys_req(WRITE,DEFAULT_DEVICE,failed,&failedLen);
