@@ -4,44 +4,17 @@
 #include <stdint.h>
 #include <string.h>
 #include "commandhandler.h"
+#include <../include/core/io.h>
 
 //variable that prints the prompt on command line
 int CHOICE = 1;
 
 int special_keys(char* buffer, int* count, char letter, int* sizePtr, int* cursorPtr){
 
-	int promptLen = strlen(PROMPT);
 
 	//utilization of a switch statement
 	//depending on the value of the letter from I/O
 	switch (letter){
-		case TAB: ; 
-		int j = 0;
-
-		while(j < 8){
-			buffer[*cursorPtr] = 0;
-			(*sizePtr)++;
-			(*count)++;
-			(*cursorPtr)++;
-			j++;
-		}
-
-		//printing of the buffer
-		serial_print("\033[1000D");
-		serial_print("\033[0K");
-		if (CHOICE){
-			sys_req(WRITE,DEFAULT_DEVICE,PROMPT,&promptLen);
-		}
-		serial_print(buffer);
-		serial_print("\033[1000D");
-
-		//replacing the cursor back to its position
-			int i = 0;
-			while (i < *cursorPtr){
-					serial_print("\033[C");
-					i++;
-				}
-		break;
 
 		//carriage return
 		case RETURN:
@@ -73,8 +46,8 @@ int special_keys(char* buffer, int* count, char letter, int* sizePtr, int* curso
 				(*cursorPtr)--; //decrement the cursor since moving left
 				break;
 			}
-		case DELETE:
-			backspace(buffer, count, sizePtr, cursorPtr); //call backspace function
+		case MACDELETE:
+			backspace(buffer, count, sizePtr, cursorPtr); //call delete function
 			break;
 			
 		case BACKSPACE:
@@ -111,40 +84,13 @@ int special_keys(char* buffer, int* count, char letter, int* sizePtr, int* curso
 					buffer[*cursorPtr] = letter;
 				}
 
-				
-
-				//printing of the buffer				
-				serial_print("\033[1000D");
-				serial_print("\033[0K");
-
-				//if a normal command, then print the prompt, if not, then don't
-				if (CHOICE){
-					sys_req(WRITE,DEFAULT_DEVICE,PROMPT,&promptLen);
-				}
-				serial_print(buffer);
-				serial_print("\033[1000D");
-
-				int i = 0;
-
-				//increment variables
+				//increment 
 				(*count)++;
 				(*sizePtr)++;
 				(*cursorPtr)++;
 
-				//getting the cursor back to its position, with prompt
-				if (CHOICE){
-					while (i < (*cursorPtr + 13)){
-					serial_print("\033[C");
-					i++;
-					}
-				}
-				else{ 
-					//getting the cursor back to position without prompt
-					while (i < (*cursorPtr)){
-					serial_print("\033[C");
-					i++;
-					}
-				}
+				//print the buffer
+				print_buffer(buffer,cursorPtr);
 				
 
 			}
@@ -154,61 +100,100 @@ int special_keys(char* buffer, int* count, char letter, int* sizePtr, int* curso
 
 
 void backspace(char *buffer, int *count, int *sizePtr, int *cursorPtr) {
-	int promptLen = strlen(PROMPT);
 
-
-	//first make sure that the size is greater than 0 and that the cursor isn't at the 0 position.
+		//first make sure that the size is greater than 0 and that the cursor isn't at the 0 position.
 	if (*sizePtr > 0 && *cursorPtr > 0){
 
-			
 
-				//if the cursor is somewhere in the middle, then remove the char and shift
-				int a = *cursorPtr - 1;
+			//if the cursor is somewhere in the middle, then remove the char and shift
+		int a = *cursorPtr - 1;
 
-				buffer[*cursorPtr - 1]= 0;
+			buffer[*cursorPtr - 1]= 0;
 
-				while(a < *sizePtr){
-					buffer[a] = buffer[a + 1];
-					a++;
-				}
-
-
-			//decrement
-			(*count)--;
-			(*sizePtr)--;
-			(*cursorPtr)--;
-
-
-			//printing of the buffer
-			serial_print("\033[1000D");
-			serial_print("\033[0K");
-
-			if (CHOICE){
-				sys_req(WRITE,DEFAULT_DEVICE,PROMPT,&promptLen);
-			}
-			serial_print(buffer);
-			serial_print("\033[1000D");
-
-			//replacing the cursor back to its position
-			int i = 0;
-
-			//getting the cursor back to its position, with prompt
-			if (CHOICE){
-				while (i < (*cursorPtr + 13)){
-				serial_print("\033[C");
-				i++;
-				}
-			}
-			else{ 
-			//getting the cursor back to position without prompt
-				while (i < (*cursorPtr)){
-				serial_print("\033[C");
-				i++;
-				}
+			while(a < *sizePtr){
+				buffer[a] = buffer[a + 1];
+				a++;
 			}
 
+
+		//decrement
+		(*count)--;
+		(*sizePtr)--;
+		(*cursorPtr)--;
+
+		//printing the buffer
+		print_buffer(buffer,cursorPtr);
+
+	}
+	
+}
+
+void deleteKey(char *buffer, int *count, int *sizePtr, int *cursorPtr){
+
+	//size must be greater than 0 and cursor has to be less than the size
+	if (*sizePtr > 0 && *cursorPtr < *sizePtr){
+
+		int b = *cursorPtr;
+
+		buffer[*cursorPtr] = 0; //in the buffer at the cursor is removed
+
+		//values are shifted
+		while(b < *sizePtr - 1){
+			buffer[b] = buffer[b+1];
+			buffer[b+1] = 0;
+			b++;
+		}
+
+		//decrement except for cursor
+		(*count)--;
+		(*sizePtr)--;
+
+		//print the buffer
+		print_buffer(buffer, cursorPtr);		
 
 
 	}
-
 }
+
+
+void print_buffer(char *buffer, int *cursorPtr){
+
+	int promptLen = strlen(PROMPT);
+
+
+	//first move cursor to the left of line
+	serial_print("\033[1000D");
+
+	//delete the entire line
+	serial_print("\033[0K");
+
+	//if the prompt needs to be reprinted, then reprint it
+	if (CHOICE){
+		sys_req(WRITE,DEFAULT_DEVICE,PROMPT,&promptLen);
+	}
+
+	//after printing the prompt, then print the updated buffer
+	serial_print(buffer);
+
+	//move the cursor back to the beginning of line
+	serial_print("\033[1000D");
+
+	//replacing the cursor back to its position
+	int i = 0;
+
+	//getting the cursor back to its position, with prompt
+	if (CHOICE){
+		while (i < (*cursorPtr + 13)){
+			serial_print("\033[C");
+			i++;
+		}
+	}
+	else{
+		//getting the cursor back to position without prompt
+		while (i < (*cursorPtr)){
+			serial_print("\033[C");
+			i++;
+		}
+	}
+}
+

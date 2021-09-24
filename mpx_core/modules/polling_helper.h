@@ -13,7 +13,7 @@
 #define RIGHT 67
 #define LEFT 68
 #define BACKSPACE 8
-#define DELETE 127
+#define MACDELETE 127
 
 #define PROMPT "\x1b[32m" "Your Choice: " "\x1b[0m"
 
@@ -39,5 +39,9 @@ int special_keys(char* buffer, int* count, char letter, int* sizePtr, int* curso
  */
 
 void backspace(char* buffer, int *count, int* sizePtr, int *cursorPtr);
+
+void deleteKey(char* buffer, int *count, int* sizePtr, int *cursorPtr);
+
+void print_buffer(char* buffer, int* cursorPtr);
 
 #endif

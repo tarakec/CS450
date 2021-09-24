@@ -10,7 +10,7 @@
 
 #include <core/io.h>
 #include <core/serial.h>
-#include "modules/polling_helper.h"
+#include "../../modules/polling_helper.h"
 
 
 #define NO_ERROR 0
@@ -108,13 +108,27 @@ int *polling(char *buffer, int *count){
    	if (inb(COM1 + 5)&1){
    	  char letter = inb(COM1);
 
-      //This is the check for arrow keys, skip the octal escape and the bracket 
+      
+      //check for escape sequences
 
-      if(letter == '\033'){ 
+      //arrow keys
+      if (letter == '\033'){
         letter = inb(COM1);
-        letter = inb(COM1);
+        if(letter == '['){
+          letter = inb(COM1); 
+
+          //sequence for delete key
+          if(letter == '3'){
+            letter = inb(COM1);
+            if(letter == '~'){
+              letter = inb(COM1); 
+              deleteKey(buffer, count, sizePtr, cursorPtr);
+              continue; 
+            }
+          }
+        }
       }
-   	  
+
 
       //call on the key handler
    	  int result = special_keys(buffer, count, letter, sizePtr, cursorPtr);
