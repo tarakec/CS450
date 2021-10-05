@@ -5,27 +5,27 @@
 #include <string.h>
 #include "commandhandler.h"
 
-extern queue *readyQ;
-extern queue *blockedQ;
-extern queue *suspendedReadyQ;
-extern queue *suspendedBlockedQ;
+queue *readyQ;
+queue *blockedQ;
+queue *suspendedReadyQ;
+queue *suspendedBlockedQ;
 
 int createPCB(char *name, int classs, int priority){
 
          if(priority > 9 || priority < 0){//checking for invalid priority
-                  char *message = "Error: integer must be between 0-9: Invalid priority";
+                  char *message = "Error: integer must be between 0-9: Invalid priority.\n";
                   int len = strlen(message);
                   sys_req(WRITE,DEFAULT_DEVICE, message,&len);
                   return 0;
          }
-         if(classs > 2 || classs < 0){// checking for correct class
-                  char *message = "Error: Invalid class";
+         if(classs >=2 || classs < 0){// checking for correct class
+                  char *message = "Error: Invalid class\n";
                   int len = strlen(message);
                   sys_req(WRITE,DEFAULT_DEVICE, message,&len);
                   return 0;
          }
          if(findPCB(name) != NULL){ //checking for correct name
-                  char * message = "Error: Name already in use";
+                  char * message = "Error: Name already in use\n";
                   int len = strlen(message);
                   sys_req(WRITE,DEFAULT_DEVICE, message,&len);
                   return 0;
@@ -153,7 +153,7 @@ int createPCB(char *name, int classs, int priority){
  	}
 
  	if(priority > 9 || priority < 0){
- 		char* message = "Error: Invalid Priority. Must be an integer from 0-9.";
+ 		char* message = "Error: Invalid Priority. Must be an integer from 0-9.\n";
  		int len = strlen(message);
  		sys_req(WRITE,DEFAULT_DEVICE,message,&len);
  		return 0;
@@ -178,7 +178,7 @@ int createPCB(char *name, int classs, int priority){
  	sys_req(WRITE,DEFAULT_DEVICE,str1,&str1Len);
  	sys_req(WRITE,DEFAULT_DEVICE,process->name,&nameLen);
 
- 	char *str2 = "State: ";
+ 	char *str2 = "\nState: ";
  	int str2Len;
  
  	if(process->state == ready){
@@ -330,7 +330,7 @@ int createPCB(char *name, int classs, int priority){
 
 int error_name_check(char *name){
 	if(findPCB(name) == NULL){
- 		char *message = "Error: The name is invalid.";
+ 		char *message = "Error: The name is invalid.\n";
  		int len = strlen(message);
  		sys_req(WRITE,DEFAULT_DEVICE,message,&len);
  		return 0;

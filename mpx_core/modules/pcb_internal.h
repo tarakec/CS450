@@ -13,11 +13,6 @@
 #define blocked -1
 #define suspendedBlocked -2
 
-//maybe i don't need suspended states??
-//but here they are for now
-#define unsuspended 0
-#define suspended 1
-
 //stack size def
 #define stackSize 1024
 

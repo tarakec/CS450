@@ -181,5 +181,12 @@ void clear();
  */
 void menu();
 
+
+void PCB_menu();
+
+void PCB_help();
+
+int PCB_exit();
+
 #endif
 
