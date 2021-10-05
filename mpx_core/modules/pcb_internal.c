@@ -28,15 +28,12 @@ int freePCB(pcb *toBeFreed){
 pcb* setupPCB(char *name, int class, int priority){
 		pcb* process = allocatePCB();
 
-			if(strlen(name) < 8){
-                return process;
-				}
 			if(priority<0 || priority>9){
                 return process;   
         		}
 				
 			strcpy(process->name, name);
-			process-> class = class;
+			process-> class_ = class;
 			process -> priority = priority;
             process -> state = ready;
 
@@ -102,8 +99,10 @@ pcb* setupPCB(char *name, int class, int priority){
         return NULL;
 }
 void insertPCB(pcb *process){
+
+
     if(process -> state == ready){ //priority queue
-        pcb *tmp = readyQ -> head;
+
         if(readyQ->count == 0){ //if it is an empty queue
             readyQ -> head = process;
             readyQ -> tail =process;
@@ -112,60 +111,57 @@ void insertPCB(pcb *process){
             readyQ -> count += 1;
         }
         else if(readyQ -> count == 1){ //one thing in queue
-            if(tmp ->priority < process->priority){ //check priority
+             pcb* tmp1 = readyQ->head;
+
+            if(tmp1 ->priority < process->priority){ //check priority
                //the priority of the existing process is less than process we're trying to insert
             //the new process is inserted after the existing process in the queue and pcb
-                process -> prev = tmp;
+                process -> prev = tmp1;
                 process -> next = NULL;
-                tmp -> next = process;
+                tmp1 -> next = process;
                 readyQ -> head = process;
             }
             else{
                 //the priority of existing process is greater than the process we're trying to insert
                 //new process inserted before the existing one
-                process -> next = tmp;
+                process -> next = tmp1;
                 process->prev = process;
                 readyQ -> tail = process;
             }
             readyQ->count+=1;
+            tmp1 = NULL;
         }
-        else{ //more than one thing in the queue
-            int i = 0;
 
+        else{ //more than one thing in the queue
+            pcb* tmp2 = readyQ->head;
+            
             //loops through readyQ queue and finds the appropriate spot if the process's priority is larger than the readyQ queue tail
-            while (i<readyQ->count){ 
-                if(process->priority > tmp -> priority){
-                    if(tmp->next != NULL){
-                        tmp = tmp ->next;
-                    }
-                }
-                else{
-                    if(tmp->prev != NULL){
-                        tmp = tmp->prev;
-                    }
-                }
-                i++;
+
+            while ((process->priority < tmp2->priority) && tmp2->prev != NULL){
+                tmp2 = tmp2->prev;    
             }
-            //checks to see if we are at head node
-            if(tmp->prev == NULL){
-                tmp->prev = process;
-                process -> next = tmp;
+            //checks to see if we are at tail node
+            if(tmp2->prev == NULL){
+                tmp2->prev = process;
+                process -> next = tmp2;
                 process -> prev = NULL;
-                readyQ -> head = process;
-                  }
-            else if(tmp->next == NULL){// check if tail
-                tmp->next = process;
-                process->prev = tmp;
-                process->next = NULL;
                 readyQ -> tail = process;
+                  }
+            else if(tmp2->next == NULL){// check if head
+                tmp2->next = process;
+                process->prev = tmp2;
+                process->next = NULL;
+                readyQ -> head = process;
 
             }
             else{
-                pcb *next = tmp->next;
-                process->prev = tmp;
+                pcb *next = tmp2->next;
+                process->prev = tmp2;
                 process -> next = next;
-                tmp->next = process;
-                //loop to find end of pbc
+                tmp2->next = process;
+                next->prev = process;
+
+                //loop to find end of queue
                 pcb *looper = process;
                 while(looper->next != NULL){
                     
@@ -174,14 +170,17 @@ void insertPCB(pcb *process){
 
                 }//tmp (looper) should now equal its last process and have the included new process with it
 
-                readyQ ->tail = looper;
+                readyQ ->head = looper;
+                looper = NULL;
             }
-            
+            tmp2 = NULL;
+            readyQ ->count +=1;
         }
-        readyQ ->count +=1;
+        
+    
     } 
     else if(process -> state == suspendedReady){ //priority queue
-        pcb *tmp = suspendedReadyQ -> head;
+       
         if(suspendedReadyQ->count == 0){ //if it is an empty queue
             suspendedReadyQ -> head = process;
             suspendedReadyQ -> tail =process;
@@ -190,59 +189,55 @@ void insertPCB(pcb *process){
             suspendedReadyQ -> count += 1;
         }
         else if(suspendedReadyQ -> count == 1){ //one thing in queue
-            if(tmp ->priority < process->priority){ //check priority
+            pcb *tmp3 = suspendedReadyQ->head;
+
+            if(tmp3 ->priority < process->priority){ //check priority
                //the priority of the existing process is less than process we're trying to insert
             //the new process is inserted after the existing process in the queue and pcb
-                process -> prev = tmp;
+                process -> prev = tmp3;
                 process -> next = NULL;
-                tmp -> next = process;
+                tmp3 -> next = process;
                 suspendedReadyQ -> head = process;
             }
             else{
                 //the priority of existing process is greater than the process we're trying to insert
                 //new process inserted before the existing one
-                process -> next = tmp;
-                process->prev = process;
+                process -> next = tmp3;
+                process->prev = NULL;
+                tmp3->prev = process;
                 suspendedReadyQ -> tail = process;
             }
             suspendedReadyQ->count+=1;
+            tmp3 = NULL;
         }
         else{ //more than one thing in the queue
-            int i = 0;
+           
+           pcb *tmp4 = suspendedReadyQ->head;
 
             //loops through suspendedReadyQQ queue and finds the appropriate spot if the process's priority is larger than the readyQ queue tail
-            while (i<suspendedReadyQ->count){ 
-                if(process->priority > tmp -> priority){
-                    if(tmp->next != NULL){
-                        tmp = tmp ->next;
-                    }
-                }
-                else{
-                    if(tmp->prev != NULL){
-                        tmp = tmp->prev;
-                    }
-                }
-                i++;
+            while ((process->priority < tmp4->priority) && tmp4->prev != NULL){ 
+                tmp4 = tmp4->prev;
             }
-            //checks to see if we are at head node
-            if(tmp->prev == NULL){
-                tmp->prev = process;
-                process -> next = tmp;
+            //checks to see if we are at tail node
+            if(tmp4->prev == NULL){
+                tmp4->prev = process;
+                process -> next = tmp4;
                 process -> prev = NULL;
-                suspendedReadyQ -> head = process;
-                  }
-            else if(tmp->next == NULL){// check if tail
-                tmp->next = process;
-                process->prev = tmp;
-                process->next = NULL;
                 suspendedReadyQ -> tail = process;
+                  }
+            else if(tmp4->next == NULL){// check if head
+                tmp4->next = process;
+                process->prev = tmp4;
+                process->next = NULL;
+                suspendedReadyQ -> head = process;
 
             }
             else{
-                pcb *next = tmp->next;
-                process->prev = tmp;
+                pcb *next = tmp4->next;
+                process->prev = tmp4;
                 process -> next = next;
-                tmp->next = process;
+                tmp4->next = process;
+                next->prev = process;
                 //loop to find end of pbc
                 
                 pcb *looper = process;
@@ -252,11 +247,13 @@ void insertPCB(pcb *process){
                     
                 }//tmp should now equal its last process and have the included new process with it
 
-                suspendedReadyQ ->tail = looper;
+                suspendedReadyQ ->head = looper;
+                looper = NULL;
             }
-            
+            tmp4 = NULL;
+            suspendedReadyQ ->count +=1;
         }
-        suspendedReadyQ ->count +=1;
+        
     }
     else if(process -> state == blocked){ //FIFO queue
         if(blockedQ->count == 0){//nothing in the queue
@@ -264,7 +261,6 @@ void insertPCB(pcb *process){
             blockedQ-> head = process;
             process -> next = NULL;
             process -> prev = NULL;
-
             blockedQ-> count += 1;
         } 
         else{ //other things in queue insert in front of queue
@@ -283,7 +279,6 @@ void insertPCB(pcb *process){
             suspendedBlockedQ-> head = process;
             process -> next = NULL;
             process -> prev = NULL;
-
             suspendedBlockedQ-> count += 1;
         } 
         else{ //other things in queue insert in front of queue
@@ -300,7 +295,7 @@ void insertPCB(pcb *process){
 
 
 int removePCB(pcb *process){
-    if(process->state == ready){ //remove from readyQ queue
+    if(process->state == ready){ //remove from ready queue
         if(readyQ-> count == 1){ //one thing in queue
             readyQ->head = NULL;
             readyQ->tail = NULL;
@@ -309,21 +304,21 @@ int removePCB(pcb *process){
             readyQ -> count -=1;
             return 1; //sucess
         }
-        else if(process->next == NULL){//check tail 
+        else if(process->next == NULL){//check head
             pcb *tmp = process -> prev;
             process -> prev = NULL;
             tmp -> next = NULL;
-            readyQ -> tail = tmp;
+            readyQ -> head = tmp;
             readyQ -> count -=1;
             return 1;//sucess
 
         }
-        else if(process->prev == NULL){//check head
+        else if(process->prev == NULL){//check tail
             pcb *tmp = process ->next;
             process -> next = NULL;
             tmp->prev = NULL;
             process -> prev = NULL;
-            readyQ -> head = tmp;
+            readyQ -> tail = tmp;
             readyQ -> count -=1;
             return 1; 
         }
@@ -347,21 +342,21 @@ int removePCB(pcb *process){
             suspendedReadyQ -> count -=1;
             return 1; //sucess
         }
-        else if(process->next == NULL){//check tail 
+        else if(process->next == NULL){//check head
             pcb *tmp = process -> prev;
             process -> prev = NULL;
             tmp -> next = NULL;
-            suspendedReadyQ -> tail = tmp;
+            suspendedReadyQ -> head = tmp;
             suspendedReadyQ -> count -=1;
             return 1;//sucess
 
         }
-        else if(process->prev == NULL){//check head
+        else if(process->prev == NULL){//check tail
             pcb *tmp = process ->next;
             process -> next = NULL;
             tmp->prev = NULL;
             process->prev = NULL;
-            suspendedReadyQ -> head = tmp;
+            suspendedReadyQ -> tail = tmp;
             suspendedReadyQ -> count -=1;
             return 1;
         }
@@ -385,21 +380,21 @@ int removePCB(pcb *process){
             blockedQ -> count -=1;
             return 1; //sucess
         }
-        else if(process->next == NULL){//check tail 
+        else if(process->next == NULL){//check head
             pcb *tmp = process -> prev;
             process -> prev = NULL;
             tmp -> next = NULL;
-            blockedQ -> tail = tmp;
+            blockedQ -> head = tmp;
             blockedQ -> count -=1;
             return 1;//sucess
 
         }
-        else if(process->prev == NULL){//check head
+        else if(process->prev == NULL){//check tail
             pcb *tmp = process ->next;
             process -> next = NULL;
             tmp->prev = NULL;
             process->prev = NULL;
-            blockedQ -> head = tmp;
+            blockedQ -> tail = tmp;
             blockedQ -> count -=1;
             return 1;
         }
@@ -423,21 +418,21 @@ int removePCB(pcb *process){
             suspendedReadyQ -> count -=1;
             return 1; //sucess
         }
-        else if(process->next == NULL){//check tail 
+        else if(process->next == NULL){//check head
             pcb *tmp = process -> prev;
             process -> prev = NULL;
             tmp -> next = NULL;
-            suspendedBlockedQ -> tail = tmp;
+            suspendedBlockedQ -> head = tmp;
             suspendedBlockedQ -> count -=1;
             return 1;//sucess
 
         }
-        else if(process->prev == NULL){//check head
+        else if(process->prev == NULL){//check tail
             pcb *tmp = process ->next;
             process -> next = NULL;
             tmp->prev = NULL;
             process->prev = NULL;
-            suspendedBlockedQ -> head = tmp;
+            suspendedBlockedQ -> tail = tmp;
             suspendedBlockedQ -> count -=1;
             return 1;
         }

@@ -66,9 +66,29 @@ int freePCB(pcb *process);
  */
 pcb *setupPCB(char *name, int class, int priority);
 
-
+/**
+ * insertPCB()
+ * inserts a process into the correct queue based on the process state
+ * If the process is suspendedReady or Ready, then the queue is a priority queue
+ * If the processes is suspendedBlocked or Blocked, then the queue is a FIFO queue
+ * @param process the process that is to be added to a queue
+ */
 void insertPCB(pcb *process);
+
+/**
+ * findPCB() 
+ * finds a pcb by looking through each queue to find the process by name
+ * @param processName the name we are looking for in each queue
+ * @returns pcb pointer matching the name given if found, NULL if not found
+ */
 pcb *findPCB(char *processName);
+
+/**
+ * removePcb()
+ * removes a specific process from its queue based on the processes state
+ * @param process the process we are deleting
+ * @return int indicating if sucess (1) or failure (0)
+ */
 int removePCB(pcb *process);
 
 #endif

@@ -108,9 +108,11 @@ int createPCB(char *name, int classs, int priority){
     int flag = 0;
  	pcb *process = findPCB(name);
 
+
     if(process->state == blocked){
         flag = 1;
     }
+    removePCB(process);
 
     if(flag){
         process->state = suspendedBlocked;
@@ -118,7 +120,8 @@ int createPCB(char *name, int classs, int priority){
     else{
         process->state = suspendedReady;
     }
- 	 
+
+ 	insertPCB(process);
  	return 1;
 
  }
@@ -136,6 +139,7 @@ int createPCB(char *name, int classs, int priority){
         flag = 1;
     }
 
+    removePCB(process);
     if(flag){
         process->state = blocked;
     }
@@ -143,6 +147,7 @@ int createPCB(char *name, int classs, int priority){
         process->state = ready;
     }
  	
+    insertPCB(process);
  	return 1;
  }
 
@@ -172,13 +177,13 @@ int createPCB(char *name, int classs, int priority){
  	}
  	pcb *process = findPCB(name);
 
- 	char *str1 = "\nProcess Name: ";
+ 	char str1[16] = "\nProcess Name: ";
  	int str1Len = strlen(str1);
  	int nameLen = strlen(process->name);
  	sys_req(WRITE,DEFAULT_DEVICE,str1,&str1Len);
  	sys_req(WRITE,DEFAULT_DEVICE,process->name,&nameLen);
 
- 	char *str2 = "\nState: ";
+ 	char str2[16] = "\nState: ";
  	int str2Len;
  
  	if(process->state == ready){
@@ -208,7 +213,7 @@ int createPCB(char *name, int classs, int priority){
  	}
 
 
- 	char *str3 = "\nClass: ";
+ 	char str3[16] = "\nClass: ";
 	int str3Len;
 	
 	if((process->class_) == system){
@@ -222,7 +227,7 @@ int createPCB(char *name, int classs, int priority){
 		sys_req(WRITE,DEFAULT_DEVICE,str3,&str3Len);
 	}
 
-	char *str5 = "\nPriority: ";
+	char str5[16] = "\nPriority: ";
 	int slen5 = strlen(str5);
 	sys_req(WRITE,DEFAULT_DEVICE,str5,&slen5);
 
@@ -231,6 +236,11 @@ int createPCB(char *name, int classs, int priority){
 	itoa(priority,numBuffer);
 	int numLen = strlen(numBuffer);
 	sys_req(WRITE,DEFAULT_DEVICE,numBuffer,&numLen);
+
+    memset(str1,'\0',16);
+    memset(str2,'\0',16);
+    memset(str3,'\0',16);
+    memset(str5,'\0',16);
 
 	return 1;
 
@@ -255,6 +265,8 @@ int createPCB(char *name, int classs, int priority){
  		}
  		i++;
  	}
+    
+   
  }
 
  void showBlocked(){
@@ -276,6 +288,8 @@ int createPCB(char *name, int classs, int priority){
  		}
  		i++;
  	}
+    
+   
  }
 
   void showSuspendedReady(){
@@ -297,6 +311,8 @@ int createPCB(char *name, int classs, int priority){
         }
         i++;
     }
+    
+   
  }
 
   void showSuspendedBlocked(){
@@ -318,6 +334,8 @@ int createPCB(char *name, int classs, int priority){
         }
         i++;
     }
+    
+   
 
  }
 

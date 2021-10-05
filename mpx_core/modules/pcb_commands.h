@@ -30,22 +30,57 @@ int blockPCB(char *name);
  */
 int unblockPCB(char *name);
 
+/**
+ Plsces the process control block in the suspended state and then reinsets it into the appropriate queue
+ @param *the name of the process control block
+ */
 int suspendPCB(char *name);
 
+/**
+ Places the process control block in the state that is not suspended and reinserts it into the appropriate queue
+ @param *the name of the process control block
+ */
 int resumePCB(char *name);
 
+/**
+ Sets the process control block's priority and then reinserts the process into the correct position in the correct queue
+ @param *the name of the process control block and the new priority
+ */
 int setPriority(char *name, int priority);
 
+/**
+Displays the process name, class, state, suspended status, and priority of the given process control block
+ @param *the name of the process control block
+ */
 int showPCB(char *name);
 
+/**
+Displays the process name, class, state, suspended status, and priority of the given process control block in the ready queue
+ @param *None
+ */
 void showReady();
 
+/**
+Displays the process name, class, state, suspended status, and priority of the given process control block in the block queue
+ @param *None
+ */
 void showBlocked();
 
+/**
+Displays the process name, class, state, suspended status, and priority of the given process control block in the ready queue of the suspended state
+ @param *None
+ */
 void showSuspendedReady();
 
+/**
+Displays the process name, class, state, suspended status, and priority of the given process control block in the block queue of the suspended state
+ @param *None
+ */
 void showSuspendedBlocked();
-
+/**
+Displays the process name, class, state, suspended status, and priority of the given process control block for the ready and blocked queues.
+ @param *the name of the process control block
+ */
 void showAll();
 
 int error_name_check(char *name);
