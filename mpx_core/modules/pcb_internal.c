@@ -137,24 +137,25 @@ void insertPCB(pcb *process){
             
             //loops through readyQ queue and finds the appropriate spot if the process's priority is larger than the readyQ queue tail
 
-            while ((process->priority < tmp2->priority) && tmp2->prev != NULL){
+            while ((process->priority <= tmp2->priority) && tmp2->prev != NULL){
                 tmp2 = tmp2->prev;    
             }
             //checks to see if we are at tail node
-            if(tmp2->prev == NULL){
+            if((tmp2->prev == NULL) && (process->priority <= tmp2->priority)){
                 tmp2->prev = process;
                 process -> next = tmp2;
                 process -> prev = NULL;
                 readyQ -> tail = process;
                   }
-            else if(tmp2->next == NULL){// check if head
+
+            else if((tmp2->next == NULL) && (process->priority > tmp2->priority)){// check if head
                 tmp2->next = process;
                 process->prev = tmp2;
                 process->next = NULL;
                 readyQ -> head = process;
 
             }
-            else{
+            else{ //somewhere in between
                 pcb *next = tmp2->next;
                 process->prev = tmp2;
                 process -> next = next;
@@ -215,17 +216,17 @@ void insertPCB(pcb *process){
            pcb *tmp4 = suspendedReadyQ->head;
 
             //loops through suspendedReadyQQ queue and finds the appropriate spot if the process's priority is larger than the readyQ queue tail
-            while ((process->priority < tmp4->priority) && tmp4->prev != NULL){ 
+            while ((process->priority <= tmp4->priority) && tmp4->prev != NULL){ 
                 tmp4 = tmp4->prev;
             }
             //checks to see if we are at tail node
-            if(tmp4->prev == NULL){
+            if((tmp4->prev == NULL) && (process->priority <= tmp4->priority)){
                 tmp4->prev = process;
                 process -> next = tmp4;
                 process -> prev = NULL;
                 suspendedReadyQ -> tail = process;
                   }
-            else if(tmp4->next == NULL){// check if head
+            else if((tmp4->next == NULL) && (process->priority > tmp4->priority)){// check if head
                 tmp4->next = process;
                 process->prev = tmp4;
                 process->next = NULL;
