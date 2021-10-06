@@ -46,31 +46,6 @@ void command_handler(){
 	suspendedReadyQ->count = 0;
 
 
-	/*
-	createPCB("1", 0, 1);
-	createPCB("2", 0, 2);
-	createPCB("8", 0, 8);
-	createPCB("9", 0, 9);
-	createPCB("4", 0, 4);
-	createPCB("5", 0, 5);
-	createPCB("3", 0, 3);
-	createPCB("7", 0, 7);
-	createPCB("6", 0, 6);
-
-	blockPCB("1");
-	blockPCB("2");
-	blockPCB("3");
-
-	suspendPCB("4");
-	suspendPCB("7");
-	suspendPCB("8");
-
-	suspendPCB("3");
-
-	createPCB("10",0,9);
-
-	showAll();
-*/
 	while(!quit) {
 
 		char* prompt = F_GREEN "Your Choice: " RESET;
@@ -219,10 +194,10 @@ void command_handler(){
 		else if ((strcmp(cmdBuffer,"8") ==0) || (strcmp(cmdBuffer, "clear") == 0) || (strcmp(cmdBuffer, "Clear") == 0)){
 			clear();
 		}
-		else if ((strcmp(cmdBuffer,"7") ==0) || (strcmp(cmdBuffer, "pcb_commands") == 0) || (strcmp(cmdBuffer, "PCB_commands") == 0)){
+		else if ((strcmp(cmdBuffer,"7") ==0) || (strcmp(cmdBuffer, "pcb") == 0) || (strcmp(cmdBuffer, "PCB_commands") == 0)){
 			innerQuit = 0;
 			PCB_menu();
-			char *pcbPrompt = F_CYAN "\nPROCESS MANAGEMENT MODE...\n" RESET;
+			char *pcbPrompt = F_CYAN "\nPROCESS MANAGEMENT MODE..\n" RESET;
 			int pcbPromptLen = strlen(pcbPrompt);
 			while(!innerQuit){
 
@@ -244,27 +219,27 @@ void command_handler(){
 				memset(priority,'\0',16);
 				memset(class,'\0',16);
 
-				if ((strcmp(innerBuffer,"2") ==0) || (strcmp(innerBuffer, "SuspendPCB") == 0) || (strcmp(innerBuffer, "suspendpcb") == 0)){
+				if ((strcmp(innerBuffer,"2") ==0) || (strcmp(innerBuffer, "SuspendPCB") == 0) || (strcmp(innerBuffer, "suspend") == 0)){
 					CHOICE = 0;
 					sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n", &n_size);
 					sys_req(READ,DEFAULT_DEVICE,name, &n_size);
 					suspendPCB(name);
 					CHOICE = 1;
 				}
-				else if ((strcmp(innerBuffer,"1") ==0) || (strcmp(innerBuffer, "PCB_Help") == 0) || (strcmp(innerBuffer, "pcb_help") == 0)){
+				else if ((strcmp(innerBuffer,"1") ==0) || (strcmp(innerBuffer, "PCB_Help") == 0) || (strcmp(innerBuffer, "help") == 0)){
 					PCB_help();
 				}
 				else if ((strcmp(innerBuffer,"0") ==0)){
 					PCB_menu();
 				}
-				else if ((strcmp(innerBuffer,"3") ==0) || (strcmp(innerBuffer, "ResumePCB") == 0) || (strcmp(innerBuffer, "resumePCB") == 0)){
+				else if ((strcmp(innerBuffer,"3") ==0) || (strcmp(innerBuffer, "ResumePCB") == 0) || (strcmp(innerBuffer, "resume") == 0)){
 					CHOICE = 0;
 					sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n",&n_size);
 					sys_req(READ,DEFAULT_DEVICE,name, &n_size);
 					resumePCB(name);
 					CHOICE = 1;
 				}
-				else if ((strcmp(innerBuffer,"4") ==0) || (strcmp(innerBuffer, "Set_Priority") == 0) || (strcmp(innerBuffer, "set_priority") == 0)){
+				else if ((strcmp(innerBuffer,"4") ==0) || (strcmp(innerBuffer, "Set_Priority") == 0) || (strcmp(innerBuffer, "set") == 0)){
 					CHOICE = 0;
 					sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n",&n_size);
 					sys_req(READ,DEFAULT_DEVICE,name, &n_size);
@@ -274,14 +249,14 @@ void command_handler(){
 					setPriority(name, p);
 					CHOICE = 1;
 				}
-				else if ((strcmp(innerBuffer,"5") ==0) || (strcmp(innerBuffer, "Show_PCB") == 0) || (strcmp(innerBuffer, "show_pcb") == 0)){
+				else if ((strcmp(innerBuffer,"5") ==0) || (strcmp(innerBuffer, "Show_PCB") == 0) || (strcmp(innerBuffer, "show") == 0)){
 					CHOICE = 0;
 					sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n", &n_size);
 					sys_req(READ,DEFAULT_DEVICE,name, &n_size);
 					showPCB(name);
 					CHOICE = 1;
 				}
-				else if ((strcmp(innerBuffer,"6") ==0) || (strcmp(innerBuffer, "Show_all_processes") == 0)){
+				else if ((strcmp(innerBuffer,"6") ==0) || (strcmp(innerBuffer, "Show_all") == 0)){
 					showAll();					
 				}
 				else if ((strcmp(innerBuffer,"7") ==0) || (strcmp(innerBuffer, "Show_ready") == 0)){
@@ -310,21 +285,21 @@ void command_handler(){
 					CHOICE = 1;
 				}
 
-				else if ((strcmp(innerBuffer,"12") ==0) || (strcmp(innerBuffer, "DeletePCB") == 0)|| (strcmp(innerBuffer, "deletepcb") == 0)){
+				else if ((strcmp(innerBuffer,"12") ==0) || (strcmp(innerBuffer, "DeletePCB") == 0)|| (strcmp(innerBuffer, "delete") == 0)){
 					CHOICE = 0;
 					sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n", &n_size);
 					sys_req(READ,DEFAULT_DEVICE,name, &n_size);
 					deletePCB(name);
 					CHOICE = 1;
 				}
-				else if ((strcmp(innerBuffer,"13") ==0) || (strcmp(innerBuffer, "BlockPCB") == 0)|| (strcmp(innerBuffer, "blockpcb") == 0)){
+				else if ((strcmp(innerBuffer,"13") ==0) || (strcmp(innerBuffer, "BlockPCB") == 0)|| (strcmp(innerBuffer, "block") == 0)){
 					CHOICE = 0;
 					sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n", &n_size);
 					sys_req(READ,DEFAULT_DEVICE,name, &n_size);
 					blockPCB(name);
 					CHOICE = 1;
 				}
-				else if ((strcmp(innerBuffer,"14") ==0) || (strcmp(innerBuffer, "UnblockPCB") == 0)|| (strcmp(innerBuffer, "deletepcb") == 0)){
+				else if ((strcmp(innerBuffer,"14") ==0) || (strcmp(innerBuffer, "UnblockPCB") == 0)|| (strcmp(innerBuffer, "unblock") == 0)){
 					CHOICE = 0;
 					sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n", &n_size);
 					sys_req(READ,DEFAULT_DEVICE,name, &n_size);
@@ -745,7 +720,7 @@ void getTime(){
 
 	   char *e = "/----------Show_pcb (Option: 5)----------/\n";
 	   int eLen = strlen(e);
-	   char *settime= F_YELLOW "Requires the user to input a proces name.\nWill display the name, state, class, and priorty.\n\n"RESET;
+	   char *settime= F_YELLOW "Requires the user to input a process name.\nWill display the name, state, class, and priority.\n\n"RESET;
 	   int settimeSize=strlen(settime);
 
 	   char *f = "/----------CreatePCB (Option: 11)---------/\n";
