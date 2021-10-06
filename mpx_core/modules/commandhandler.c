@@ -9,6 +9,7 @@
 #include "pcb_commands.h"
 
 extern int CHOICE;
+
 queue *readyQ;
 queue *blockedQ;
 queue *suspendedReadyQ;
@@ -530,7 +531,6 @@ void getTime(){
 	char secs[4];
 	int hr, min, sec;
 	
-
 	hr = getHours();
 	min = getMins();
 	sec = getSeconds();
@@ -725,7 +725,7 @@ void getTime(){
 
 	   char *f = "/----------CreatePCB (Option: 11)---------/\n";
 	   int fLen = strlen(f);
-	   char *sd= F_YELLOW "Requires the user to input a name, priority, and class.\nWill create a new PCB.\n\n" RESET;
+	   char *sd= F_YELLOW "Requires the user to input a name, priority, and class.\nCan support names of 16 chars. Creates PCB.\n\n" RESET;
 	   int sdSize=strlen(sd);
 
 	   char *g = "/----------SuspendPCB (Option: 2)---------/\n";
