@@ -45,7 +45,8 @@ void command_handler(){
 	suspendedReadyQ = sys_alloc_mem(sizeof(struct queue));
 	suspendedReadyQ->count = 0;
 
-/* testing
+
+	/*
 	createPCB("1", 0, 1);
 	createPCB("2", 0, 2);
 	createPCB("8", 0, 8);
@@ -64,22 +65,10 @@ void command_handler(){
 	suspendPCB("7");
 	suspendPCB("8");
 
-	
 	suspendPCB("3");
-	blockPCB("4");
 
-	resumePCB("7");
-	resumePCB("4");
+	createPCB("10",0,9);
 
-	unblockPCB("4");
-
-	deletePCB("1");
-	deletePCB("2");
-
-	deletePCB("8");
-	deletePCB("9");
-
-	setPriority("4",9);
 	showAll();
 */
 	while(!quit) {
@@ -364,7 +353,7 @@ void command_handler(){
 
 
 void help(){
-	   char *msg = "\n\n/---Each command can be executed by typing the name or its number---/\n\n" RESET;
+	   char *msg = "\n\n/---Each command can be executed by typing its number---/\n\n" RESET;
 	   int msgLen = strlen(msg);
 
 	   char *a = "/----------Version (Option: 6)----------/\n";
@@ -708,7 +697,7 @@ void getTime(){
 
    void menu(){
    	//initial greeting
-	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"1)Help\n2)Set_date\n3)Get_date\n4)Set_time\n5)Get_time\n6)Version\n7)Process_management\n8)clear\n99)Quit\n\n" RESET;
+	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"1)Help\n2)Set_date\n3)Get_date\n4)Set_time\n5)Get_time\n6)Version\n7)Process_Management_Mode\n8)clear\n99)Quit\n\n" RESET;
 
 	int menulen = strlen(menu);
 
@@ -731,7 +720,7 @@ void getTime(){
    }
 
    void PCB_help(){
-	   char *msg = "\n\n/---Each command can be executed by typing the name or its number---/\n\n" RESET;
+	   char *msg = "\n\n/---Each command can be executed by typing its number---/\n\n" RESET;
 	   int msgLen = strlen(msg);
 
 	   char *a = "/----------Show_ready(Option: 7)----------/\n";

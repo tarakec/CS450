@@ -62,7 +62,7 @@ int createPCB(char *name, int classs, int priority){
 
      pcb *process = findPCB(name);//finds pcb
 
-     if(process->state == suspendedBlocked || process->state == blocked){ //if it is already blocked just return
+     if((process->state == suspendedBlocked) || (process->state == blocked)){ //if it is already blocked just return
         return 1;
      }
      removePCB(process);// removes it
@@ -93,7 +93,7 @@ int createPCB(char *name, int classs, int priority){
 
      pcb *process = findPCB(name); //find pcb
 
-    if(process->state == suspendedReady || process->state == ready){ //if already unblocked just return
+    if((process->state == suspendedReady) || (process->state == ready)){ //if already unblocked just return
         return 1;
      }
      removePCB(process);
@@ -123,7 +123,7 @@ int createPCB(char *name, int classs, int priority){
 
  	pcb *process = findPCB(name); //find the pcb
 
-    if(process->state == suspendedBlocked || process->state == suspendedReady){ //if already suspended just return
+    if((process->state == suspendedBlocked) || (process->state == suspendedReady)){ //if already suspended just return
         return 1;
      }
     removePCB(process);
@@ -153,7 +153,7 @@ int createPCB(char *name, int classs, int priority){
 
  	pcb *process = findPCB(name); // find pcb
 
-    if(process->state == blocked || process->state == ready){ //if already unsuspended just return
+    if((process->state == blocked) || (process->state == ready)){ //if already unsuspended just return
         return 1;
      }
     removePCB(process);
@@ -194,75 +194,13 @@ int createPCB(char *name, int classs, int priority){
  }
 
  int showPCB(char* name){
+
  	if(!error_name_check(name)){
  		return 0;
  	}
+
  	pcb *process = findPCB(name);
-
- 	char str1[16] = "\nProcess Name: ";
- 	int str1Len = strlen(str1);
- 	int nameLen = strlen(process->name);
- 	sys_req(WRITE,DEFAULT_DEVICE,str1,&str1Len);
- 	sys_req(WRITE,DEFAULT_DEVICE,process->name,&nameLen);
-
- 	char str2[16] = "\nState: ";
- 	int str2Len;
- 
- 	if(process->state == ready){
- 	 	strcat(str2,"Ready");
- 	 	str2Len = strlen(str2);
- 	 	sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
- 	}
- 	else if(process->state == blocked){
- 		strcat(str2,"Blocked");
- 		str2Len = strlen(str2);
- 		sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
- 	}
-    else if(process->state == suspendedBlocked){
-        strcat(str2,"Suspended Blocked");
-        str2Len = strlen(str2);
-        sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-    }
-    else if(process->state == suspendedReady){
-        strcat(str2,"Suspended Ready");
-        str2Len = strlen(str2);
-        sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-    }
- 	else{
- 		strcat(str2,"Running");
- 		str2Len = strlen(str2);
- 		sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
- 	}
-
- 	char str3[16] = "\nClass: ";
-	int str3Len;
-	
-	if((process->class_) == system){
-		strcat(str3, "System");
-		str3Len = strlen(str3);
-		sys_req(WRITE,DEFAULT_DEVICE,str3,&str3Len);
-		
-	}else{
-		strcat(str3, "Application");
-		str3Len = strlen(str3);
-		sys_req(WRITE,DEFAULT_DEVICE,str3,&str3Len);
-	}
-
-	char str5[16] = "\nPriority: ";
-	int slen5 = strlen(str5);
-	sys_req(WRITE,DEFAULT_DEVICE,str5,&slen5);
-
-	int priority = process->priority;
-	char numBuffer[2];
-	itoa(priority,numBuffer);
-	int numLen = strlen(numBuffer);
-	sys_req(WRITE,DEFAULT_DEVICE,numBuffer,&numLen);
-
-    memset(str1,'\0',16);
-    memset(str2,'\0',16);
-    memset(str3,'\0',16);
-    memset(str5,'\0',16);
-
+    printPCB(process);
 	return 1;
 
  }
@@ -277,71 +215,7 @@ int createPCB(char *name, int classs, int priority){
 
  	pcb *loop = readyQ->head;
  	while( i < readyQ->count){
-     	char str1[16] = "\nProcess Name: ";
-        int str1Len = strlen(str1);
-        int nameLen = strlen(loop->name);
-        sys_req(WRITE,DEFAULT_DEVICE,str1,&str1Len);
-        sys_req(WRITE,DEFAULT_DEVICE,loop->name,&nameLen);
-
-        char str2[16] = "\nState: ";
-        int str2Len;
-     
-        if(loop->state == ready){
-            strcat(str2,"Ready");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else if(loop->state == blocked){
-            strcat(str2,"Blocked");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else if(loop->state == suspendedBlocked){
-            strcat(str2,"Suspended Blocked");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else if(loop->state == suspendedReady){
-            strcat(str2,"Suspended Ready");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else{
-            strcat(str2,"Running");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-
-        char str3[16] = "\nClass: ";
-        int str3Len;
-        
-        if((loop->class_) == system){
-            strcat(str3, "System");
-            str3Len = strlen(str3);
-            sys_req(WRITE,DEFAULT_DEVICE,str3,&str3Len);
-            
-        }else{
-            strcat(str3, "Application");
-            str3Len = strlen(str3);
-            sys_req(WRITE,DEFAULT_DEVICE,str3,&str3Len);
-        }
-
-        char str5[16] = "\nPriority: ";
-        int slen5 = strlen(str5);
-        sys_req(WRITE,DEFAULT_DEVICE,str5,&slen5);
-
-        int priority = loop->priority;
-        char numBuffer[2];
-        itoa(priority,numBuffer);
-        int numLen = strlen(numBuffer);
-        sys_req(WRITE,DEFAULT_DEVICE,numBuffer,&numLen);
-        sys_req(WRITE,DEFAULT_DEVICE,"\n\n",&numLen);
-
-
-        memset(str1,'\0',16);
-        memset(str2,'\0',16);
-        memset(str3,'\0',16);
-        memset(str5,'\0',16);
+        printPCB(loop);
 
 
  	if(loop->prev!=NULL){
@@ -361,73 +235,7 @@ int createPCB(char *name, int classs, int priority){
 
  	pcb *loop = blockedQ->head;
  	while( i < blockedQ->count){
- 		char str1[16] = "\nProcess Name: ";
-        int str1Len = strlen(str1);
-        int nameLen = strlen(loop->name);
-        sys_req(WRITE,DEFAULT_DEVICE,str1,&str1Len);
-        sys_req(WRITE,DEFAULT_DEVICE,loop->name,&nameLen);
-
-        char str2[16] = "\nState: ";
-        int str2Len;
-     
-        if(loop->state == ready){
-            strcat(str2,"Ready");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else if(loop->state == blocked){
-            strcat(str2,"Blocked");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else if(loop->state == suspendedBlocked){
-            strcat(str2,"Suspended Blocked");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else if(loop->state == suspendedReady){
-            strcat(str2,"Suspended Ready");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else{
-            strcat(str2,"Running");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-
-        char str3[16] = "\nClass: ";
-        int str3Len;
-        
-        if((loop->class_) == system){
-            strcat(str3, "System");
-            str3Len = strlen(str3);
-            sys_req(WRITE,DEFAULT_DEVICE,str3,&str3Len);
-            
-        }else{
-            strcat(str3, "Application");
-            str3Len = strlen(str3);
-            sys_req(WRITE,DEFAULT_DEVICE,str3,&str3Len);
-        }
-
-        char str5[16] = "\nPriority: ";
-        int slen5 = strlen(str5);
-        sys_req(WRITE,DEFAULT_DEVICE,str5,&slen5);
-
-        int priority = loop->priority;
-        char numBuffer[2];
-        itoa(priority,numBuffer);
-        int numLen = strlen(numBuffer);
-        sys_req(WRITE,DEFAULT_DEVICE,numBuffer,&numLen);
-        sys_req(WRITE,DEFAULT_DEVICE,"\n\n",&numLen);
-
-
-        memset(str1,'\0',16);
-        memset(str2,'\0',16);
-        memset(str3,'\0',16);
-        memset(str5,'\0',16);
-
-
+ 		printPCB(loop);
 
  		if(loop->prev!=NULL){
  			loop = loop->prev;
@@ -446,73 +254,7 @@ int createPCB(char *name, int classs, int priority){
 
     pcb *loop = suspendedReadyQ->head;
     while( i < suspendedReadyQ->count){
-                char str1[16] = "\nProcess Name: ";
-        int str1Len = strlen(str1);
-        int nameLen = strlen(loop->name);
-        sys_req(WRITE,DEFAULT_DEVICE,str1,&str1Len);
-        sys_req(WRITE,DEFAULT_DEVICE,loop->name,&nameLen);
-
-        char str2[16] = "\nState: ";
-        int str2Len;
-     
-        if(loop->state == ready){
-            strcat(str2,"Ready");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else if(loop->state == blocked){
-            strcat(str2,"Blocked");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else if(loop->state == suspendedBlocked){
-            strcat(str2,"Suspended Blocked");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else if(loop->state == suspendedReady){
-            strcat(str2,"Suspended Ready");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else{
-            strcat(str2,"Running");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-
-        char str3[16] = "\nClass: ";
-        int str3Len;
-        
-        if((loop->class_) == system){
-            strcat(str3, "System");
-            str3Len = strlen(str3);
-            sys_req(WRITE,DEFAULT_DEVICE,str3,&str3Len);
-            
-        }else{
-            strcat(str3, "Application");
-            str3Len = strlen(str3);
-            sys_req(WRITE,DEFAULT_DEVICE,str3,&str3Len);
-        }
-
-        char str5[16] = "\nPriority: ";
-        int slen5 = strlen(str5);
-        sys_req(WRITE,DEFAULT_DEVICE,str5,&slen5);
-
-        int priority = loop->priority;
-        char numBuffer[2];
-        itoa(priority,numBuffer);
-        int numLen = strlen(numBuffer);
-        sys_req(WRITE,DEFAULT_DEVICE,numBuffer,&numLen);
-        sys_req(WRITE,DEFAULT_DEVICE,"\n\n",&numLen);
-
-
-        memset(str1,'\0',16);
-        memset(str2,'\0',16);
-        memset(str3,'\0',16);
-        memset(str5,'\0',16);
-
-
+        printPCB(loop);
 
         if(loop->prev!=NULL){
             loop = loop->prev;
@@ -525,77 +267,15 @@ int createPCB(char *name, int classs, int priority){
 
     int i = 0;
 
-    char* msg = F_YELLOW"\nSuspended Blocked: \n" RESET;
+    char* msg = F_YELLOW "\nSuspended Blocked: \n" RESET;
     int msgLen = strlen(msg);
     sys_req(WRITE,DEFAULT_DEVICE,msg,&msgLen);
 
     pcb *loop = suspendedBlockedQ->head;
-    while( i < suspendedBlockedQ->count){
-                char str1[16] = "\nProcess Name: ";
-        int str1Len = strlen(str1);
-        int nameLen = strlen(loop->name);
-        sys_req(WRITE,DEFAULT_DEVICE,str1,&str1Len);
-        sys_req(WRITE,DEFAULT_DEVICE,loop->name,&nameLen);
 
-        char str2[16] = "\nState: ";
-        int str2Len;
-     
-        if(loop->state == ready){
-            strcat(str2,"Ready");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else if(loop->state == blocked){
-            strcat(str2,"Blocked");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else if(loop->state == suspendedBlocked){
-            strcat(str2,"Suspended Blocked");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else if(loop->state == suspendedReady){
-            strcat(str2,"Suspended Ready");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
-        else{
-            strcat(str2,"Running");
-            str2Len = strlen(str2);
-            sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
-        }
+    while(i < suspendedBlockedQ->count){
 
-        char str3[16] = "\nClass: ";
-        int str3Len;
-        
-        if((loop->class_) == system){
-            strcat(str3, "System");
-            str3Len = strlen(str3);
-            sys_req(WRITE,DEFAULT_DEVICE,str3,&str3Len);
-            
-        }else{
-            strcat(str3, "Application");
-            str3Len = strlen(str3);
-            sys_req(WRITE,DEFAULT_DEVICE,str3,&str3Len);
-        }
-
-        char str5[16] = "\nPriority: ";
-        int slen5 = strlen(str5);
-        sys_req(WRITE,DEFAULT_DEVICE,str5,&slen5);
-
-        int priority = loop->priority;
-        char numBuffer[2];
-        itoa(priority,numBuffer);
-        int numLen = strlen(numBuffer);
-        sys_req(WRITE,DEFAULT_DEVICE,numBuffer,&numLen);
-        sys_req(WRITE,DEFAULT_DEVICE,"\n\n",&numLen);
-
-
-        memset(str1,'\0',16);
-        memset(str2,'\0',16);
-        memset(str3,'\0',16);
-        memset(str5,'\0',16);
+        printPCB(loop);
 
         if(loop->prev!=NULL){
             loop = loop->prev;
@@ -620,4 +300,72 @@ int error_name_check(char *name){
  	}
  	else
  		return 1;
+}
+
+void printPCB(pcb *process){
+
+    char str1[16] = "\nProcess Name: ";
+    int str1Len = strlen(str1);
+    int nameLen = strlen(process->name);
+    sys_req(WRITE,DEFAULT_DEVICE,str1,&str1Len);
+    sys_req(WRITE,DEFAULT_DEVICE,process->name,&nameLen);
+
+    char str2[16] = "\nState: ";
+    int str2Len;
+ 
+    if(process->state == ready){
+        strcat(str2,"Ready");
+        str2Len = strlen(str2);
+        sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
+    }
+    else if(process->state == blocked){
+        strcat(str2,"Blocked");
+        str2Len = strlen(str2);
+        sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
+    }
+    else if(process->state == suspendedBlocked){
+        strcat(str2,"Suspended Blocked");
+        str2Len = strlen(str2);
+        sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
+    }
+    else if(process->state == suspendedReady){
+        strcat(str2,"Suspended Ready");
+        str2Len = strlen(str2);
+        sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
+    }
+    else{
+        strcat(str2,"Running");
+        str2Len = strlen(str2);
+        sys_req(WRITE,DEFAULT_DEVICE,str2,&str2Len);
+    }
+
+    char str3[16] = "\nClass: ";
+    int str3Len;
+    
+    if((process->class_) == system){
+        strcat(str3, "System");
+        str3Len = strlen(str3);
+        sys_req(WRITE,DEFAULT_DEVICE,str3,&str3Len);
+        
+    }else{
+        strcat(str3, "Application");
+        str3Len = strlen(str3);
+        sys_req(WRITE,DEFAULT_DEVICE,str3,&str3Len);
+    }
+
+    char str5[16] = "\nPriority: ";
+    int slen5 = strlen(str5);
+    sys_req(WRITE,DEFAULT_DEVICE,str5,&slen5);
+
+    int priority = process->priority;
+    char numBuffer[3];
+    itoa(priority,numBuffer);
+    int numLen = strlen(numBuffer);
+    sys_req(WRITE,DEFAULT_DEVICE,numBuffer,&numLen);
+    sys_req(WRITE,DEFAULT_DEVICE,"\n\n",&numLen);
+
+    memset(str1,'\0',16);
+    memset(str2,'\0',16);
+    memset(str3,'\0',16);
+    memset(str5,'\0',16);
 }

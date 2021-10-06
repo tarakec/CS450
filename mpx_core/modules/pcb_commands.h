@@ -1,3 +1,5 @@
+#include "pcb_internal.h"
+
 #ifndef _PCBCMDS_H
 #define _PCBCMDS_H
 /** \file pcbcommands.h
@@ -79,10 +81,21 @@ Displays the process name, class, state, suspended status, and priority of the g
 void showSuspendedBlocked();
 /**
 Displays the process name, class, state, suspended status, and priority of the given process control block for the ready and blocked queues.
- @param *the name of the process control block
+ @param *None
  */
 void showAll();
 
+/**
+ * checks the queues to make sure that the name can be found within them. If not, displays an error message.
+ * @param char* name, name of the process
+ */
 int error_name_check(char *name);
+
+/**
+ * prints the valuable information about the process
+ * @param pcb* process
+ */
+
+void printPCB(pcb* process);
 
 #endif

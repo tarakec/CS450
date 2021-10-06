@@ -33,7 +33,7 @@ pcb* setupPCB(char *name, int class, int priority){
         		}
 				
 			strcpy(process->name, name);
-			process-> class_ = class;
+			process -> class_= class;
 			process -> priority = priority;
             process -> state = ready;
 
@@ -87,20 +87,19 @@ pcb* setupPCB(char *name, int class, int priority){
         while(i < suspendedBlockedQ->count){
             if(strcmp(suspBlockedTail->name, name) == 0){
                 return suspBlockedTail;
+            }
             if(suspBlockedTail->next != NULL){
                 suspBlockedTail = suspBlockedTail->next;
             }
             i++;
         }//not in suspeneded blocked
 
-        
-	}
-    //not found -- return NULL
+         //not found -- return NULL
         return NULL;
-}
+	}
+   
+
 void insertPCB(pcb *process){
-
-
     if(process -> state == ready){ //priority queue
 
         if(readyQ->count == 0){ //if it is an empty queue
@@ -125,7 +124,8 @@ void insertPCB(pcb *process){
                 //the priority of existing process is greater than the process we're trying to insert
                 //new process inserted before the existing one
                 process -> next = tmp1;
-                process->prev = process;
+                process->prev = NULL;
+                tmp1->prev = process;
                 readyQ -> tail = process;
             }
             readyQ->count+=1;
@@ -367,7 +367,7 @@ int removePCB(pcb *process){
             next->prev = process ->prev;
             process -> prev = NULL;
             process -> next = NULL;
-            readyQ -> count -=1;
+            suspendedReadyQ -> count -=1;
             return 1; //sucess
         }
     }
@@ -405,7 +405,7 @@ int removePCB(pcb *process){
             next->prev = process ->prev;
             process -> prev = NULL;
             process -> next = NULL;
-            readyQ -> count -=1;
+            blockedQ -> count -=1;
             return 1; //sucess
         } 
     }
@@ -415,7 +415,7 @@ int removePCB(pcb *process){
             suspendedBlockedQ->tail = NULL;
             process -> next = NULL;
             process -> prev = NULL;
-            suspendedReadyQ -> count -=1;
+            suspendedBlockedQ -> count -=1;
             return 1; //sucess
         }
         else if(process->next == NULL){//check head
@@ -443,7 +443,7 @@ int removePCB(pcb *process){
             next->prev = process ->prev;
             process -> prev = NULL;
             process -> next = NULL;
-            readyQ -> count -=1;
+            suspendedBlockedQ -> count -=1;
             return 1; //sucess
         }
     }

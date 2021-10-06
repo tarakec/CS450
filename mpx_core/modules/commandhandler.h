@@ -181,11 +181,19 @@ void clear();
  */
 void menu();
 
-
+/**
+ * prompts the user with a menu of actions they can perform during the process management mode.
+ */
 void PCB_menu();
 
+/**
+ * displays the list of available commands in the process management mode and what they do
+ */
 void PCB_help();
 
+/**
+ * sends the signal to exit the process management mode
+ */
 int PCB_exit();
 
 #endif
