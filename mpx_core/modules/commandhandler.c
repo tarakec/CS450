@@ -45,7 +45,43 @@ void command_handler(){
 	suspendedReadyQ = sys_alloc_mem(sizeof(struct queue));
 	suspendedReadyQ->count = 0;
 
+/* testing
+	createPCB("1", 0, 1);
+	createPCB("2", 0, 2);
+	createPCB("8", 0, 8);
+	createPCB("9", 0, 9);
+	createPCB("4", 0, 4);
+	createPCB("5", 0, 5);
+	createPCB("3", 0, 3);
+	createPCB("7", 0, 7);
+	createPCB("6", 0, 6);
 
+	blockPCB("1");
+	blockPCB("2");
+	blockPCB("3");
+
+	suspendPCB("4");
+	suspendPCB("7");
+	suspendPCB("8");
+
+	
+	suspendPCB("3");
+	blockPCB("4");
+
+	resumePCB("7");
+	resumePCB("4");
+
+	unblockPCB("4");
+
+	deletePCB("1");
+	deletePCB("2");
+
+	deletePCB("8");
+	deletePCB("9");
+
+	setPriority("4",9);
+	showAll();
+*/
 	while(!quit) {
 
 		char* prompt = F_GREEN "Your Choice: " RESET;
@@ -271,7 +307,7 @@ void command_handler(){
 				else if ((strcmp(innerBuffer,"10") ==0) || (strcmp(innerBuffer, "Show_suspended_blocked") == 0)){
 					showSuspendedBlocked();
 				}
-				else if ((strcmp(innerBuffer,"11") ==0) || (strcmp(innerBuffer, "CreatePCB") == 0) || (strcmp(cmdBuffer, "createpcb") == 0)){
+				else if ((strcmp(innerBuffer,"11") ==0) || (strcmp(innerBuffer, "CreatePCB") == 0) || (strcmp(innerBuffer, "create") == 0)){
 					CHOICE = 0;
 					sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n",&n_size);
 					sys_req(READ,DEFAULT_DEVICE,name, &n_size);
@@ -336,7 +372,7 @@ void help(){
 	   char *ver= F_YELLOW "Version will tell you what the current module is and when it was completed.\n\n" RESET;
 	   int verSize=strlen(ver);
 	   
-	   char *b = "/----------Get_date (Option: 3)----------/\n";
+	   char *b = "/----------Get date (Option: 3)----------/\n";
 	   int bLen = strlen(b);
 	   char	*getdate= F_YELLOW "Get_date will tell you the current date of the operating system.\n\n" RESET;
 	   int dateSize=strlen(getdate);
@@ -368,8 +404,13 @@ void help(){
 
 	   char *h = "/----------Clear (Option: 8)---------/\n";
 	   int hLen = strlen(h);
-	   char *clear= F_YELLOW "Clear will empty out of the screen.\nThe menu command is useful afterr running this command.\n\n" RESET;
+	   char *clear= F_YELLOW "Clear will empty out of the screen.\nThe menu command is useful after running this command.\n\n" RESET;
 	   int clearLen=strlen(clear);
+
+	   char *i = "/----------Process_Management_Mode (Option: 7)---------/\n";
+	   int iLen = strlen(i);
+	   char *pcbMode= F_YELLOW "Enters Process Management Mode.\nHas own help function within itself.\n\n" RESET;
+	   int pcbModeLen=strlen(pcbMode);
 
 	   	sys_req(WRITE,DEFAULT_DEVICE,msg, &msgLen);
 		sys_req(WRITE, DEFAULT_DEVICE, g, &gLen);
@@ -384,6 +425,8 @@ void help(){
 		sys_req(WRITE,DEFAULT_DEVICE,gettime,&timeSize);
 		sys_req(WRITE,DEFAULT_DEVICE,a,&aLen);
 	   	sys_req(WRITE,DEFAULT_DEVICE,ver,&verSize);
+	   	sys_req(WRITE,DEFAULT_DEVICE,i,&iLen);
+	   	sys_req(WRITE,DEFAULT_DEVICE,pcbMode,&pcbModeLen);
 	   	sys_req(WRITE, DEFAULT_DEVICE, h, &hLen);
 		sys_req(WRITE,DEFAULT_DEVICE, clear, &clearLen);
 		sys_req(WRITE, DEFAULT_DEVICE, f, &fLen);
@@ -679,7 +722,7 @@ void getTime(){
    	char* greet = F_CYAN "\n---List of PCB Commands---\n" RESET;
    	int msglen = strlen(greet);
 
-   	char* pcb_menu = F_GREEN "\n0)PCB_Menu\n1)PCB_Help\n2)SuspendPCB\n3)ResumePCB\n4)Set_priority\n5)Show_PCB\n6)Show_all_processes\n7)Show_ready\n8)Show_blocked\n9)Show_suspended_ready\n10)Show_suspended_blocked\n11)CreatePCB\n12)DeletePCB\n13)BlockPCB\n14)UnblockPCB\n15)Clear\n99)Exit\n\n" RESET;
+   	char* pcb_menu = F_GREEN "\n0)PCB_Menu\n1)PCB_Help\n2)SuspendPCB\n3)ResumePCB\n4)Set_priority\n5)Show_PCB\n6)Show_all\n7)Show_ready\n8)Show_blocked\n9)Show_suspended_ready\n10)Show_suspended_blocked\n11)CreatePCB\n12)DeletePCB\n13)BlockPCB\n14)UnblockPCB\n15)Clear\n99)Exit_Process_Management_Mode\n\n" RESET;
    	int pcb_len = strlen(pcb_menu);
 
    	//print
@@ -703,7 +746,7 @@ void getTime(){
 
 	   char *c = "/----------ResumePCB (Option: 3)----------/\n";
 	   int cLen = strlen(c);
-	   char *setdate= F_YELLOW "Requires the user to input a process name. Will resume the corresponding process.\n\n"RESET;
+	   char *setdate= F_YELLOW "Requires the user to input a process name. \nWill resume the corresponding process.\n\n"RESET;
 	   int dateSetSize=strlen(setdate);
 
 	   char *d = "/----------Show_all_processes (Option: 6)----------/\n";
@@ -723,7 +766,7 @@ void getTime(){
 
 	   char *g = "/----------SuspendPCB (Option: 2)---------/\n";
 	   int gLen = strlen(g);
-	   char *menu= F_YELLOW "Requires the user to input a process name. Will suspend the corresponding process.   \n\n" RESET;
+	   char *menu= F_YELLOW "Requires the user to input a process name. \nWill suspend the corresponding process.   \n\n" RESET;
 	   int menuLen=strlen(menu);
 
 	   char *h = "/----------Show_blocked(Option: 8)---------/\n";
@@ -761,7 +804,7 @@ void getTime(){
 	   char *cl= F_YELLOW "Clears the screen.\n\n" RESET;
 	   int clLen=strlen(cl);
 
-	   char *n = "/----------Exit(Option: 99)---------/\n";
+	   char *n = "/-------Exit_Process_Management_Mode(Option: 99)------/\n";
 	   int nLen = strlen(n);
 	   char *back= F_YELLOW "Will return to the main menu.\n\n" RESET;
 	   int backLen=strlen(back);

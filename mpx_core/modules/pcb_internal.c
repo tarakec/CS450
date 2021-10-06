@@ -121,7 +121,7 @@ void insertPCB(pcb *process){
                 tmp1 -> next = process;
                 readyQ -> head = process;
             }
-            else{
+            else if(tmp1-> priority >= process->priority){
                 //the priority of existing process is greater than the process we're trying to insert
                 //new process inserted before the existing one
                 process -> next = tmp1;
