@@ -5,7 +5,7 @@
 #include <string.h>
 #include <../include/core/io.h>
 #include <../include/core/serial.h>
-
+ 
 #define F_CYAN "\x1b[36m"
 #define F_YELLOW "\x1b[33m"
 #define RESET "\x1b[0m"
@@ -537,7 +537,7 @@ void alarm(char *message, char*time){
 	newAlarm->time= time;
 	newAlarm->message= message;
 	insertPCB(newAlarm); 
-	
+
 
 }
  
