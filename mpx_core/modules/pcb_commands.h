@@ -12,7 +12,7 @@
  @param class the type of pcb, either an application or system process
  @param priority the priority assigned to the process
  */
-int createPCB(char *name, int classs, int priority);
+pcb* createPCB(char *name, int classs, int priority);
 
 /**
  Deletes the process control block given from the respected queue
@@ -97,5 +97,11 @@ int error_name_check(char *name);
  */
 
 void printPCB(pcb* process);
+
+pcb* load_proc(char *name, void(*func)(void));
+
+void loadr3();
+
+void yield();
 
 #endif

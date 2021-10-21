@@ -1,7 +1,16 @@
 #include <string.h>
 #include <system.h>
-
+#include <../modules/pcb_internal.h>
+#include <../modules/pcb_commands.h>
 #include <core/serial.h>
+#include <../modules/mpx_supt.h>
+
+pcb* cop; //currently operating process
+context *globalContext;
+param params;
+extern queue *readyQ;
+
+
 
 /*
   Procedure..: klogv
@@ -29,4 +38,30 @@ void kpanic(const char *msg)
   strcat(logmsg, msg);
   klogv(logmsg);
   hlt(); //halt
+}
+
+
+u32int *sys_call(context *registers){
+  if(cop == NULL){
+    globalContext = registers;
+  }
+  else{
+    if(params.op_code == IDLE){
+      cop->stackTop = (unsigned char*) registers;
+      insertPCB(cop);
+    }
+    else if(params.op_code == EXIT){
+      freePCB(cop);
+    }
+  }
+
+  if(readyQ->head != NULL){
+    pcb* readyHead = readyQ->head;
+    removePCB(readyHead);
+    readyHead->state = running;
+    cop = readyHead;
+    return(u32int*) cop->stackTop;
+  }
+
+  return (u32int*) globalContext;
 }

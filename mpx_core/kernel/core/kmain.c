@@ -91,6 +91,7 @@ void kmain(void)
 
    // 6) Call YOUR command handler -  interface method
    klogv("Transferring control to commhand...");
+   setHours(getHours()-4);
    
    command_handler();
    // 7) System Shutdown on return from your command handler

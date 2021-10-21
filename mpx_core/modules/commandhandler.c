@@ -86,7 +86,7 @@ void command_handler(){
 			sys_req(READ,DEFAULT_DEVICE,month,&m_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&m_size);
 			int m = atoi(month);
-			if(m > 12 || m <= 0){
+			while(m > 12 || m <= 0){
 				memset(month,'\0',8);
 				sys_req(WRITE,DEFAULT_DEVICE,"Please enter a valid month between 1-12:\n", &m_size);
 				sys_req(READ,DEFAULT_DEVICE,month,&m_size);
@@ -98,7 +98,7 @@ void command_handler(){
 			sys_req(READ,DEFAULT_DEVICE,day,&d_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&d_size);
 			int d = atoi(day);
-			if(d > 31 || d <= 0){
+			while(d > 31 || d <= 0){
 				memset(day,'\0',8);
 				sys_req(WRITE,DEFAULT_DEVICE,"Please enter a valid day between 1-31:\n", &d_size);
 				sys_req(READ,DEFAULT_DEVICE,day,&d_size);
@@ -110,7 +110,7 @@ void command_handler(){
 			sys_req(READ,DEFAULT_DEVICE,year,&y_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&y_size);
 			int y = atoi(year);
-			if(y > 99 || y < 0){
+			while(y > 99 || y < 0){
 				memset(year,'\0',8);
 				sys_req(WRITE,DEFAULT_DEVICE,"Please enter a valid year between 0-99:\n", &y_size);
 				sys_req(READ,DEFAULT_DEVICE,year,&y_size);
@@ -144,7 +144,7 @@ void command_handler(){
 			sys_req(READ,DEFAULT_DEVICE,hour,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
 			int h = atoi(hour);
-			if(h >= 24 || h < 0){
+			while(h >= 24 || h < 0){
 				memset(hour,'\0',8);
 				sys_req(WRITE,DEFAULT_DEVICE,"Please enter a valid hour between 0-23:]\n", &t_size);
 				sys_req(READ,DEFAULT_DEVICE,hour,&t_size);
@@ -156,7 +156,7 @@ void command_handler(){
 			sys_req(READ,DEFAULT_DEVICE,min,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
 			int m = atoi(min);
-			if(m > 59 || m < 0){
+			while(m > 59 || m < 0){
 				memset(min,'\0',8);
 				sys_req(WRITE,DEFAULT_DEVICE,"Please enter valid minutes between 0-59:\n", &t_size);
 				sys_req(READ,DEFAULT_DEVICE,min,&t_size);
@@ -168,7 +168,7 @@ void command_handler(){
 			sys_req(READ,DEFAULT_DEVICE,sec,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
 			int s = atoi(sec);
-			if(s > 59 || s < 0){
+			while(s > 59 || s < 0){
 				memset(sec,'\0',8);
 				sys_req(WRITE,DEFAULT_DEVICE,"Please enter valid seconds between 0-59:\n", &t_size);
 				sys_req(READ,DEFAULT_DEVICE,sec,&t_size);
@@ -307,7 +307,13 @@ void command_handler(){
 					unblockPCB(name);
 					CHOICE = 1;
 				}
-				else if ((strcmp(innerBuffer,"15") ==0) || (strcmp(innerBuffer, "clear") == 0)|| (strcmp(innerBuffer, "clear") == 0)){
+				else if ((strcmp(innerBuffer,"15") ==0) || (strcmp(innerBuffer, "loadr3") == 0)){
+					loadr3();
+				}
+				else if ((strcmp(innerBuffer,"16") ==0) || (strcmp(innerBuffer, "yield") == 0)){
+					yield();
+				}
+				else if ((strcmp(innerBuffer,"17") ==0) || (strcmp(innerBuffer, "clear") == 0)|| (strcmp(innerBuffer, "clear") == 0)){
 					clear();
 				}
 				else if ((strcmp(innerBuffer,"99") ==0) || (strcmp(innerBuffer, "exit") == 0)|| (strcmp(innerBuffer, "Exit") == 0)){
@@ -322,7 +328,7 @@ void command_handler(){
 		else {
 			error();
 		}
-		
+		sys_req(IDLE,COM1,NULL,NULL);
 	}
 
 }
@@ -686,7 +692,7 @@ void getTime(){
    	char* greet = F_CYAN "\n---List of PCB Commands---\n" RESET;
    	int msglen = strlen(greet);
 
-   	char* pcb_menu = F_GREEN "\n0)PCB_Menu\n1)PCB_Help\n2)SuspendPCB\n3)ResumePCB\n4)Set_priority\n5)Show_PCB\n6)Show_all\n7)Show_ready\n8)Show_blocked\n9)Show_suspended_ready\n10)Show_suspended_blocked\n11)CreatePCB\n12)DeletePCB\n13)BlockPCB\n14)UnblockPCB\n15)Clear\n99)Exit_Process_Management_Mode\n\n" RESET;
+   	char* pcb_menu = F_GREEN "\n0)PCB_Menu\n1)PCB_Help\n2)SuspendPCB\n3)ResumePCB\n4)Set_priority\n5)Show_PCB\n6)Show_all\n7)Show_ready\n8)Show_blocked\n9)Show_suspended_ready\n10)Show_suspended_blocked\n11)CreatePCB\n12)DeletePCB\n13)BlockPCB\n14)UnblockPCB\n15)loadr3\n16)yield\n17)clear\n99)Exit_Process_Management_Mode\n\n" RESET;
    	int pcb_len = strlen(pcb_menu);
 
    	//print
