@@ -494,5 +494,54 @@ void getTime(){
 
 	// print the greeting
 	sys_req(WRITE,DEFAULT_DEVICE,menu,&menulen);
+
+//place PCB in suspended state and reinserts into correct queue
+int suspend(char *name){
+    if(!error_name_check(name)){
+ 		return 0;
+ 	}
+
+pcb*process->suspend=unsuspended;
+return 1;
+
+}
+
+int resume(char *name){
+    if(!error_name_check(name)){
+ 		return 0;
+ 	}
+	 
+}
+
+
+
+int setPriority(char *name,){
+    if(name=NULL)
+        print("Name is not vaild");
+
+}
+
+int showPCBchar *name){
+    if(name=NULL)
+        print("Name is not vaild");
+
+}
+
+
+
+//alarm command
+// message and time from user input
+void alarm(char *message, char*time){
+
+	PCB *newAlarm= createPCB("Alarm: ", 0, 7);
+	newAlarm->time= time;
+	newAlarm->message= message;
+	insertPCB(newAlarm); 
+	
+
+}
+ 
+
+
    }
 
