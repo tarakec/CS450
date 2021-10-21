@@ -104,4 +104,5 @@ void loadr3();
 
 void yield();
 
+void allocateQueues();
 #endif

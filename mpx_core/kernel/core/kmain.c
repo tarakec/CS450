@@ -23,6 +23,8 @@
 
 #include "modules/mpx_supt.h"
 #include "modules/commandhandler.h"
+#include "modules/pcb_internal.h"
+#include "modules/pcb_commands.h"
 
 
 void kmain(void)
@@ -48,7 +50,7 @@ void kmain(void)
    //     MPX Module.  This will change with each module.
    // you will need to call mpx_init from the mpx_supt.c
    
-   mpx_init(MODULE_R2);
+   mpx_init(MODULE_R4);
  	
    // 2) Check that the boot was successful and correct when using grub
    // Comment this when booting the kernel directly using QEMU, etc.
@@ -84,6 +86,7 @@ void kmain(void)
    // NOTE:  You will only have about 70000 bytes of dynamic memory
    //
    
+   allocateQueues();
    init_paging();
    
    klogv("Initializing virtual memory...");
@@ -91,9 +94,22 @@ void kmain(void)
 
    // 6) Call YOUR command handler -  interface method
    klogv("Transferring control to commhand...");
-   setHours(getHours()-4);
    
-   command_handler();
+  pcb* c = load_proc("commhand", &command_handler);
+  pcb* i = load_proc("idle", &infinite);
+
+  c->priority = 9;
+  c->state = ready;
+
+  i->priority = 1;
+  i->state = ready;
+
+  insertPCB(c);
+  insertPCB(i);
+  setHours(getHours()-4);
+  yield();
+
+  
    // 7) System Shutdown on return from your command handler
    klogv("Starting system shutdown procedure...");
    

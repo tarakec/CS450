@@ -46,6 +46,12 @@ pcb* createPCB(char *name, int classs, int priority){
 
      pcb *process = findPCB(name); // finds the pcb
 
+     if(!strcmp(name,"idle")){
+        if(process->state == ready || process->state == blocked){
+            serial_print("Cannot delete idle process in the ready state.\n");
+            return 0;
+        }
+     }
      if(removePCB(process) && (freePCB(process) != -1)){ //removes and frees it
         return 1;
      }
@@ -406,3 +412,15 @@ void loadr3(){
 void yield() {
      asm volatile("int $60");
 }
+
+void allocateQueues(){
+    blockedQ = sys_alloc_mem(sizeof(struct queue));
+    blockedQ->count = 0;
+    readyQ = sys_alloc_mem(sizeof(struct queue));
+    readyQ->count = 0;
+    suspendedBlockedQ = sys_alloc_mem(sizeof(struct queue));
+    suspendedBlockedQ->count = 0;
+    suspendedReadyQ = sys_alloc_mem(sizeof(struct queue));
+    suspendedReadyQ->count = 0;
+}
+

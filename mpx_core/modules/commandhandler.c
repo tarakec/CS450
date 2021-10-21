@@ -7,15 +7,15 @@
 #include "polling_helper.h"
 #include "pcb_internal.h"
 #include "pcb_commands.h"
+#include "alarm.h"
 
 extern int CHOICE;
 
 queue *readyQ;
-queue *blockedQ;
-queue *suspendedReadyQ;
-queue *suspendedBlockedQ;
+
 
 void command_handler(){
+
 
 	//initial greeting
 	char *greetings = F_CYAN "\nHello :) Welcome to 'Four of a Kind' MPX\n" RESET;
@@ -35,16 +35,6 @@ void command_handler(){
 	int bufferSize; //size of the buffer
 	int quit=0;
 	int innerQuit = 0;
-
-
-	blockedQ = sys_alloc_mem(sizeof(struct queue));
-	blockedQ->count = 0;
-	readyQ = sys_alloc_mem(sizeof(struct queue));
-	readyQ->count = 0;
-	suspendedBlockedQ = sys_alloc_mem(sizeof(struct queue));
-	suspendedBlockedQ->count = 0;
-	suspendedReadyQ = sys_alloc_mem(sizeof(struct queue));
-	suspendedReadyQ->count = 0;
 
 
 	while(!quit) {
@@ -127,6 +117,9 @@ void command_handler(){
 		}
 		else if((strcmp(cmdBuffer, "3") == 0 ) || (strcmp(cmdBuffer, "Get_date") == 0)){
 			getDate();
+			int m = getMonth();
+			char test[8];
+			itoa(m,test);
 		}
 		else if((strcmp(cmdBuffer, "4")  == 0) || (strcmp(cmdBuffer, "Set_time") == 0)){
 			
@@ -151,7 +144,7 @@ void command_handler(){
 				h = atoi(hour);
 			}
 
-			CHOICE = 0;
+			
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the minutes [mm]:\n",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,min,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
@@ -163,7 +156,7 @@ void command_handler(){
 				m = atoi(min);
 			}
 
-			CHOICE = 0;
+			
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the seconds [ss]:\n",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,sec,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
@@ -185,6 +178,10 @@ void command_handler(){
 		}
 		else if((strcmp(cmdBuffer, "5") == 0 ) || (strcmp(cmdBuffer, "Get_time") == 0)){
 			getTime();
+			int h = getHours();
+			char test[8];
+			itoa(h,test);
+			
 		}
 		else if((strcmp(cmdBuffer, "6")  == 0) || (strcmp(cmdBuffer, "Version") == 0) || (strcmp(cmdBuffer, "version") == 0)){
 			version();
@@ -192,9 +189,53 @@ void command_handler(){
 		else if((strcmp(cmdBuffer, "menu") == 0) || (strcmp(cmdBuffer, "Menu") == 0)){
 			menu();
 		}
-		else if ((strcmp(cmdBuffer,"8") ==0) || (strcmp(cmdBuffer, "clear") == 0) || (strcmp(cmdBuffer, "Clear") == 0)){
+		else if ((strcmp(cmdBuffer,"9") ==0) || (strcmp(cmdBuffer, "clear") == 0) || (strcmp(cmdBuffer, "Clear") == 0)){
 			clear();
 		}
+		else if ((strcmp(cmdBuffer,"8") == 0) || (strcmp(cmdBuffer,"alarm") == 0)){
+					char msg[80];
+					char hour[8];
+					char min[8];
+					char sec[8];
+					
+					int msgSize = 40; 
+					memset(msg,'\0',80);
+					memset(hour,'\0',8);
+					memset(min,'\0',8);
+					memset(sec,'\0',8);
+
+					CHOICE = 0;
+					sys_req(WRITE,DEFAULT_DEVICE,"Setting Alarm.. \n\n", &msgSize);
+					sys_req(WRITE,DEFAULT_DEVICE,"Message: \n",&msgSize);
+					sys_req(READ,DEFAULT_DEVICE,msg, &msgSize);
+
+					sys_req(WRITE, DEFAULT_DEVICE, "Hours: \n",&msgSize);
+					sys_req(READ,DEFAULT_DEVICE, hour,&msgSize);
+					int h = atoi(hour);
+					while(h >= 24 || h < 0){
+						memset(hour,'\0',8);
+						sys_req(WRITE,DEFAULT_DEVICE,"Please enter a valid hour between 0-23: \n", &msgSize);
+						sys_req(READ,DEFAULT_DEVICE,hour,&msgSize);
+						h = atoi(hour);
+				}
+
+					sys_req(WRITE, DEFAULT_DEVICE, "Minutes: \n",&msgSize);
+					sys_req(READ,DEFAULT_DEVICE, min, &msgSize);
+					int m = atoi(min);
+					while(m > 59 || m < 0){
+						memset(min,'\0',8);
+						sys_req(WRITE,DEFAULT_DEVICE,"Please enter valid minutes between 0-59: \n", &msgSize);
+						sys_req(READ,DEFAULT_DEVICE,min,&msgSize);
+						m = atoi(min);
+				}
+
+			
+					CHOICE = 1;
+
+					
+					setAlarm(msg, h , m );
+				}
+		
 		else if ((strcmp(cmdBuffer,"7") ==0) || (strcmp(cmdBuffer, "pcb") == 0) || (strcmp(cmdBuffer, "PCB_commands") == 0)){
 			innerQuit = 0;
 			PCB_menu();
@@ -209,10 +250,11 @@ void command_handler(){
 				innerSize = 99;
 
 				sys_req(READ, DEFAULT_DEVICE, innerBuffer, &innerSize);
-
 				int n_size = 16;
 				int p_size = 16;
-				int c_size = 16;
+				int c_size = 16;int h = getHours();
+			char test[8];
+			itoa(h,test);
 				char name[16];
 				char priority[16];
 				char class[16];
@@ -261,7 +303,7 @@ void command_handler(){
 					showAll();					
 				}
 				else if ((strcmp(innerBuffer,"7") ==0) || (strcmp(innerBuffer, "Show_ready") == 0)){
-					showReady();
+					yield();
 				}
 				else if ((strcmp(innerBuffer,"8") ==0) || (strcmp(innerBuffer, "Show_blocked") == 0)){
 					showBlocked();
@@ -310,8 +352,8 @@ void command_handler(){
 				else if ((strcmp(innerBuffer,"15") ==0) || (strcmp(innerBuffer, "loadr3") == 0)){
 					loadr3();
 				}
-				else if ((strcmp(innerBuffer,"16") ==0) || (strcmp(innerBuffer, "yield") == 0)){
-					yield();
+				else if ((strcmp(innerBuffer,"16") ==0) || (strcmp(innerBuffer, "infinite") == 0)){
+					infinite();
 				}
 				else if ((strcmp(innerBuffer,"17") ==0) || (strcmp(innerBuffer, "clear") == 0)|| (strcmp(innerBuffer, "clear") == 0)){
 					clear();
@@ -328,7 +370,7 @@ void command_handler(){
 		else {
 			error();
 		}
-		sys_req(IDLE,COM1,NULL,NULL);
+	
 	}
 
 }
@@ -678,7 +720,7 @@ void getTime(){
 
    void menu(){
    	//initial greeting
-	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"1)Help\n2)Set_date\n3)Get_date\n4)Set_time\n5)Get_time\n6)Version\n7)Process_Management_Mode\n8)clear\n99)Quit\n\n" RESET;
+	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"1)Help\n2)Set_date\n3)Get_date\n4)Set_time\n5)Get_time\n6)Version\n7)Process_Management_Mode\n8)alarm\n9)clear\n99)Quit\n\n" RESET;
 
 	int menulen = strlen(menu);
 
@@ -692,7 +734,7 @@ void getTime(){
    	char* greet = F_CYAN "\n---List of PCB Commands---\n" RESET;
    	int msglen = strlen(greet);
 
-   	char* pcb_menu = F_GREEN "\n0)PCB_Menu\n1)PCB_Help\n2)SuspendPCB\n3)ResumePCB\n4)Set_priority\n5)Show_PCB\n6)Show_all\n7)Show_ready\n8)Show_blocked\n9)Show_suspended_ready\n10)Show_suspended_blocked\n11)CreatePCB\n12)DeletePCB\n13)BlockPCB\n14)UnblockPCB\n15)loadr3\n16)yield\n17)clear\n99)Exit_Process_Management_Mode\n\n" RESET;
+   	char* pcb_menu = F_GREEN "\n0)PCB_Menu\n1)PCB_Help\n2)SuspendPCB\n3)ResumePCB\n4)Set_priority\n5)Show_PCB\n6)Show_all\n7)Show_ready\n8)Show_blocked\n9)Show_suspended_ready\n10)Show_suspended_blocked\n11)CreatePCB\n12)DeletePCB\n13)BlockPCB\n14)UnblockPCB\n15)loadr3\n16)infinite\n17)clear\n99)Exit_Process_Management_Mode\n\n" RESET;
    	int pcb_len = strlen(pcb_menu);
 
    	//print
