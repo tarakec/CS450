@@ -828,17 +828,17 @@ void alarm(char *message, char*time){
 //check time for alarm 
 //break up pcb time string with :
 //get time in array to pick out the numbers
-void alarmCheck(){
+void alarmCheck(){s
 	PCB temp= findPCB("Alarm: ");
 	char *timeArray[2];
 	int x=0;
-	if(temp !=null){
+	if(temp !=null){s
 		char *timeToken= strtok(temp->time, ":");
 		timeArray
 
 	}
 	sys_req(WRITE,DEFAULT_DEVICE,message, &messageSize);
-	
+
 }
 
 //if alarm check is 0 then process idles
