@@ -451,7 +451,7 @@ void help(){
    }
    
 void version(){
-	char *version = "\nVersion R2 \nLast Updated on 10/5/2021\n";
+	char *version = "\nVersion R3 \nLast Updated on 10/22/2021\n";
 	int length = strlen(version);
 	sys_req(WRITE, DEFAULT_DEVICE, version, &length);
 }
