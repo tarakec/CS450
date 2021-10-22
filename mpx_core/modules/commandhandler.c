@@ -734,7 +734,7 @@ void getTime(){
    	char* greet = F_CYAN "\n---List of PCB Commands---\n" RESET;
    	int msglen = strlen(greet);
 
-   	char* pcb_menu = F_GREEN "\n0)PCB_Menu\n1)PCB_Help\n2)SuspendPCB\n3)ResumePCB\n4)Set_priority\n5)Show_PCB\n6)Show_all\n7)Show_ready\n8)Show_blocked\n9)Show_suspended_ready\n10)Show_suspended_blocked\n11)CreatePCB\n12)DeletePCB\n13)BlockPCB\n14)UnblockPCB\n15)loadr3\n16)infinite\n17)clear\n99)Exit_Process_Management_Mode\n\n" RESET;
+   	char* pcb_menu = F_GREEN "\n0)PCB_Menu\n1)PCB_Help\n2)SuspendPCB\n3)ResumePCB\n4)Set_priority\n5)Show_PCB\n6)Show_all\n7)Show_ready\n8)Show_blocked\n9)Show_suspended_ready\n10)Show_suspended_blocked\n12)DeletePCB\n15)loadr3\n16)infinite\n17)clear\n99)Exit_Process_Management_Mode\n\n" RESET;
    	int pcb_len = strlen(pcb_menu);
 
    	//print
