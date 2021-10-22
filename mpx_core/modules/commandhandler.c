@@ -372,7 +372,7 @@ void command_handler(){
 		}
 	
 	}
-
+sys_req(IDLE, DEFAULT_DEVICE, NULL, NULL);
 }
 
 
