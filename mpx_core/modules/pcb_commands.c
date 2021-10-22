@@ -377,11 +377,27 @@ void printPCB(pcb *process){
     memset(str3,'\0',16);
     memset(str5,'\0',16);
 }
-
+// pcb* load_proc(char *name, void(*func)(void)) {
+//     pcb *newPcb = setupPCB(name, 0,1);
+//     context *cp = (context*)(newPcb->stackTop);
+//     newPcb->state = suspendedReady;
+//     memset(cp,0,sizeof(context));
+//     cp->fs = 0x10;
+//     cp->gs = 0x10;
+//     cp->ds = 0x10;
+//     cp->es = 0x10;
+//     cp->cs = 0x8;
+//     cp->ebp = (u32int)(newPcb->stack);
+//     cp->esp = (u32int)(newPcb->stackTop);
+//     cp->eip = (u32int) func;
+//     cp->eflags = 0x202;
+//     return newPcb;
+// }
 pcb* load_proc(char *name, void(*func)(void)) {
-    pcb *newPcb = setupPCB(name, 0,1);
+    pcb *newPcb = createPCB(name, 1, 1);
+    
     context *cp = (context*)(newPcb->stackTop);
-    newPcb->state = suspendedReady;
+    //newPcb->state = suspendedReady;
     memset(cp,0,sizeof(context));
     cp->fs = 0x10;
     cp->gs = 0x10;

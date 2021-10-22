@@ -98,7 +98,7 @@ void kmain(void)
   pcb* c = load_proc("commhand", &command_handler);
   pcb* i = load_proc("idle", &infinite);
 
-  c->priority = 9;
+  c->priority = 1;
   c->state = ready;
 
   i->priority = 1;
