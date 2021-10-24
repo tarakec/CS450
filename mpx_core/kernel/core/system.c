@@ -5,11 +5,9 @@
 #include <core/serial.h>
 #include <../modules/mpx_supt.h>
 
-pcb* cop; //currently operating process
-context *globalContext;
-param params;
-extern queue *readyQ;
-
+// pcb* cop; //currently operating process
+// context *globalContext;
+// extern queue *readyQ;
 
 
 /*
@@ -41,27 +39,31 @@ void kpanic(const char *msg)
 }
 
 
-u32int *sys_call(context *registers){
-  if(cop == NULL){
-    globalContext = registers;
-  }
-  else{
-    if(params.op_code == IDLE){
-      cop->stackTop = (unsigned char*) registers;
-      insertPCB(cop);
-    }
-    else if(params.op_code == EXIT){
-      freePCB(cop);
-    }
-  }
+// u32int *sys_call(context *registers){
+//   pcb* head = readyQ->head;
+//   if(cop == NULL){
+//     globalContext = registers;
+//   }
+//   else{
+//     if(params.op_code == IDLE){
+//       // serial_println("idlinfg");
+//       cop->stackTop = (unsigned char*) registers;
+//       cop -> state = ready;
+//       insertPCB(cop);
+//     }
+//     else if(params.op_code == EXIT){
+//       freePCB(cop);
+//     }
+//   }
 
-  if(readyQ->head != NULL){
-    pcb* readyHead = readyQ->head;
-    removePCB(readyHead);
-    readyHead->state = running;
-    cop = readyHead;
-    return(u32int*) cop->stackTop;
-  }
+//   if(head != NULL){
+//     // serial_println("head not empth");
+//     // pcb* readyHead = readyQ->head;
+//     removePCB(head);
+//     head->state = running;
+//     cop = head;
+//     return(u32int*) cop->stackTop;
+//   }
 
-  return (u32int*) globalContext;
-}
+//   return (u32int*) globalContext;
+// }

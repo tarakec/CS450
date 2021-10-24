@@ -13,13 +13,12 @@ extern int CHOICE;
 
 queue *readyQ;
 
-
 void command_handler(){
 
 
 	//initial greeting
 	char *greetings = F_CYAN "\nHello :) Welcome to 'Four of a Kind' MPX\n" RESET;
-	
+
 	int greetinglen = strlen(greetings);
 
 	// print the greeting
@@ -59,7 +58,7 @@ void command_handler(){
 			help();
 		}
 		else if((strcmp(cmdBuffer, "2")  == 0) || (strcmp(cmdBuffer, "Set_date") == 0)){
-			
+
 			int d_size = 8;
 			int m_size = 8;
 			int y_size = 8;
@@ -122,7 +121,7 @@ void command_handler(){
 			itoa(m,test);
 		}
 		else if((strcmp(cmdBuffer, "4")  == 0) || (strcmp(cmdBuffer, "Set_time") == 0)){
-			
+
 			int t_size = 8;
 
 			char hour[8];
@@ -144,7 +143,7 @@ void command_handler(){
 				h = atoi(hour);
 			}
 
-			
+
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the minutes [mm]:\n",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,min,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
@@ -156,7 +155,7 @@ void command_handler(){
 				m = atoi(min);
 			}
 
-			
+
 			sys_req(WRITE, DEFAULT_DEVICE, "Enter the seconds [ss]:\n",&t_size);
 			sys_req(READ,DEFAULT_DEVICE,sec,&t_size);
 			sys_req(WRITE,DEFAULT_DEVICE,"\n",&t_size);
@@ -168,7 +167,7 @@ void command_handler(){
 				s = atoi(sec);
 			}
 
-			
+
 			setTime(h,m,s);
 
 			sys_req(WRITE,DEFAULT_DEVICE, "Successfully changed the time...\n", &t_size);
@@ -181,7 +180,7 @@ void command_handler(){
 			int h = getHours();
 			char test[8];
 			itoa(h,test);
-			
+
 		}
 		else if((strcmp(cmdBuffer, "6")  == 0) || (strcmp(cmdBuffer, "Version") == 0) || (strcmp(cmdBuffer, "version") == 0)){
 			version();
@@ -197,8 +196,8 @@ void command_handler(){
 					char hour[8];
 					char min[8];
 					char sec[8];
-					
-					int msgSize = 40; 
+
+					int msgSize = 40;
 					memset(msg,'\0',80);
 					memset(hour,'\0',8);
 					memset(min,'\0',8);
@@ -229,13 +228,13 @@ void command_handler(){
 						m = atoi(min);
 				}
 
-			
+
 					CHOICE = 1;
 
-					
+
 					setAlarm(msg, h , m );
 				}
-		
+
 		else if ((strcmp(cmdBuffer,"7") ==0) || (strcmp(cmdBuffer, "pcb") == 0) || (strcmp(cmdBuffer, "PCB_commands") == 0)){
 			innerQuit = 0;
 			PCB_menu();
@@ -300,7 +299,7 @@ void command_handler(){
 					CHOICE = 1;
 				}
 				else if ((strcmp(innerBuffer,"6") ==0) || (strcmp(innerBuffer, "Show_all") == 0)){
-					showAll();					
+					showAll();
 				}
 				else if ((strcmp(innerBuffer,"7") ==0) || (strcmp(innerBuffer, "Show_ready") == 0)){
 					yield();
@@ -324,7 +323,7 @@ void command_handler(){
 					sys_req(WRITE,DEFAULT_DEVICE,"Enter 0 for Application PCB or 1 for System PCB: \n", &c_size);
 					sys_req(READ,DEFAULT_DEVICE,class,&c_size);
 					int c = atoi(class);
-					createPCB(name, c, p);
+					setupPCB(name, c, p);
 					CHOICE = 1;
 				}
 
@@ -352,8 +351,8 @@ void command_handler(){
 				else if ((strcmp(innerBuffer,"15") ==0) || (strcmp(innerBuffer, "loadr3") == 0)){
 					loadr3();
 				}
-				else if ((strcmp(innerBuffer,"16") ==0) || (strcmp(innerBuffer, "infinite") == 0)){
-					infinite();
+				else if ((strcmp(innerBuffer,"16") ==0) || (strcmp(innerBuffer, "idle") == 0)){
+					idle();
 				}
 				else if ((strcmp(innerBuffer,"17") ==0) || (strcmp(innerBuffer, "clear") == 0)|| (strcmp(innerBuffer, "clear") == 0)){
 					clear();
@@ -364,15 +363,16 @@ void command_handler(){
 				else{
 					error();
 				}
+				sys_req(IDLE, DEFAULT_DEVICE, NULL, NULL);
 			}
 		}
 
 		else {
 			error();
 		}
-	
+		sys_req(IDLE, DEFAULT_DEVICE, NULL, NULL);
 	}
-
+	sys_req(EXIT, DEFAULT_DEVICE, NULL, NULL);
 }
 
 
@@ -384,7 +384,7 @@ void help(){
 	   int aLen = strlen(a);
 	   char *ver= F_YELLOW "Version will tell you what the current module is and when it was completed.\n\n" RESET;
 	   int verSize=strlen(ver);
-	   
+
 	   char *b = "/----------Get date (Option: 3)----------/\n";
 	   int bLen = strlen(b);
 	   char	*getdate= F_YELLOW "Get_date will tell you the current date of the operating system.\n\n" RESET;
@@ -444,14 +444,14 @@ void help(){
 		sys_req(WRITE,DEFAULT_DEVICE, clear, &clearLen);
 		sys_req(WRITE, DEFAULT_DEVICE, f, &fLen);
 		sys_req(WRITE,DEFAULT_DEVICE,sd,&sdSize);
-		
-		
+
+
 
 
    }
-   
+
 void version(){
-	char *version = "\nVersion R2 \nLast Updated on 10/5/2021\n";
+	char *version = "\nVersion R3 \nLast Updated on 10/22/2021\n";
 	int length = strlen(version);
 	sys_req(WRITE, DEFAULT_DEVICE, version, &length);
 }
@@ -464,7 +464,7 @@ void error(){
 
 
  char* itoa(int num, char* buffer){
-	 
+
 	 int i = 0;
 	 if(num == 0){
 	 	buffer[i] = '0';
@@ -510,14 +510,14 @@ void error(){
  }
 
  void setTime(int hrs, int min, int sec){
- 	
+
  	setHours(hrs);
  	setMin(min);
  	setSec(sec);
 
 }
 
- 
+
 int getHours(){
  	int hour;
  	outb(0X70,0x04);
@@ -525,7 +525,7 @@ int getHours(){
  	hour = hrs-6 * (hrs>>4);
 	return hour;
  }
- 
+
  void setHours(int hr){
  	int bcd;
  	bcd = (((hr/10)<<4) | (hr%10));
@@ -540,10 +540,10 @@ int getHours(){
  	outb(0X70,0x02);
  	int mins = inb(0x71);
  	min = mins-6 * (mins>>4);
- 
+
  	return min;
  }
- 
+
  void setMin(int min){
  	int bcd;
  	bcd = (((min/10)<<4) | (min%10));
@@ -558,10 +558,10 @@ int getHours(){
  	outb(0X70,0x00);
  	unsigned char secs = inb(0x71);
  	sec = secs-6 * (secs>>4);
- 
+
  	return sec;
  }
- 
+
  void setSec(int seconds){
  	int bcd;
  	bcd = (((seconds/10)<<4) | (seconds%10));
@@ -578,11 +578,11 @@ void getTime(){
 	char mins[4];
 	char secs[4];
 	int hr, min, sec;
-	
+
 	hr = getHours();
 	min = getMins();
 	sec = getSeconds();
- 
+
 	itoa(hr, hrs);
 	itoa(min, mins);
 	itoa(sec, secs);
@@ -648,7 +648,7 @@ void getTime(){
  	    outb(0x70,0x08);
  	    outb(0x71,bcd);
  	    sti();
-       
+
    }
 
    int getDay(){
@@ -675,7 +675,7 @@ void getTime(){
        outb(0x70, 0x09);
        unsigned char yrs= inb(0x71);
        year = yrs-6 * (yrs>>4);
-	   return year;  
+	   return year;
    }
 
    void setYear(int year){
@@ -715,7 +715,7 @@ void getTime(){
    	char *CLEAR_SCREEN = "\x1b[2J";
    	int clear = strlen(CLEAR_SCREEN);
    	sys_req(WRITE,DEFAULT_DEVICE,CLEAR_SCREEN,&clear);
-   	
+
    }
 
    void menu(){
@@ -734,7 +734,7 @@ void getTime(){
    	char* greet = F_CYAN "\n---List of PCB Commands---\n" RESET;
    	int msglen = strlen(greet);
 
-   	char* pcb_menu = F_GREEN "\n0)PCB_Menu\n1)PCB_Help\n2)SuspendPCB\n3)ResumePCB\n4)Set_priority\n5)Show_PCB\n6)Show_all\n7)Show_ready\n8)Show_blocked\n9)Show_suspended_ready\n10)Show_suspended_blocked\n11)CreatePCB\n12)DeletePCB\n13)BlockPCB\n14)UnblockPCB\n15)loadr3\n16)infinite\n17)clear\n99)Exit_Process_Management_Mode\n\n" RESET;
+   	char* pcb_menu = F_GREEN "\n0)PCB_Menu\n1)PCB_Help\n2)SuspendPCB\n3)ResumePCB\n4)Set_priority\n5)Show_PCB\n6)Show_all\n7)Show_ready\n8)Show_blocked\n9)Show_suspended_ready\n10)Show_suspended_blocked\n12)DeletePCB\n15)loadr3\n16)infinite\n17)clear\n99)Exit_Process_Management_Mode\n\n" RESET;
    	int pcb_len = strlen(pcb_menu);
 
    	//print
@@ -750,7 +750,7 @@ void getTime(){
 	   int aLen = strlen(a);
 	   char *ver= F_YELLOW "Will display all proceses in the ready queue.\n\n" RESET;
 	   int verSize=strlen(ver);
-	   
+
 	   char *b = "/----------Set_Priority (Option: 4)----------/\n";
 	   int bLen = strlen(b);
 	   char	*getdate= F_YELLOW "Requires the user to enter a process name and priority.\nWill assign priority to the process.\n\n" RESET;
