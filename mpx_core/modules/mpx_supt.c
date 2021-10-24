@@ -1,21 +1,25 @@
 /*************************************************************
-*	This C file contains the MPX support functions 
+*	This C file contains the MPX support functions
 *	which will be used through out the semester, many set
 *	flags or methods that will allow us to modify
-*	The behavior of MPX as it progresses throughout 
+*	The behavior of MPX as it progresses throughout
 * 	the semester.
 **************************************************************/
 #include "mpx_supt.h"
 #include <mem/heap.h>
 #include <string.h>
 #include <core/serial.h>
+#include "pcb_internal.h"
 
-// global variable containing parameter used when making 
+// global variable containing parameter used when making
 // system calls via sys_req
-param params;   
+param params;
+pcb* cop; //currently operating process
+context *globalContext;
+extern queue *readyQ;
 
 // global for the current module
-int current_module = -1;  
+int current_module = -1;
 static int io_module_active = 0;
 static int mem_module_active = 0;
 
@@ -29,14 +33,15 @@ int (*student_free)(void *);
 
 
 
+
 /* *********************************************
 *	This function is use to issue system requests
-*	for service.  
+*	for service.
 *
 *	Parameters:  op_code:  Requested Operation, one of
 *					READ, WRITE, IDLE, EXIT
 *			  device_id:  For READ & WRITE this is the
-*					  device to which the request is 
+*					  device to which the request is
 *					  sent.  One of DEFAULT_DEVICE or
 *					   COM_PORT
 *			   buffer_ptr:  pointer to a character buffer
@@ -69,7 +74,7 @@ int sys_req( 	int  op_code,
       return_code = INVALID_COUNT;
 
     // if parameters are valid store in the params structure
-    if ( return_code == 0){ 
+    if ( return_code == 0){
       params.op_code = op_code;
       params.device_id = device_id;
       params.buffer_ptr = buffer_ptr;
@@ -79,25 +84,25 @@ int sys_req( 	int  op_code,
         // if default device
         if (op_code == READ)
           return_code = *(polling(buffer_ptr, count_ptr));
-		  			
+
         else //must be WRITE
-          return_code = serial_print(buffer_ptr);	
-	    
+          return_code = serial_print(buffer_ptr);
+
       } else {// I/O module is implemented
         asm volatile ("int $60");
       } // NOT IO_MODULE
     }
   } else return_code = INVALID_OPERATION;
-  
+
   return return_code;
 }// end of sys_req
 
 /*
   Procedure..: mpx_init
   Description..: Initialize MPX support software, based
-			on the current module.  The operation of 
+			on the current module.  The operation of
 			MPX will changed based on the module selected.
-			THIS must be called as the first executable 
+			THIS must be called as the first executable
 			statement inside your command handler.
 
   Params..: int cur_mod (symbolic constants MODULE_R1, MODULE_R2, 			etc.  These constants can be found inside
@@ -105,7 +110,7 @@ int sys_req( 	int  op_code,
 */
 void mpx_init(int cur_mod)
 {
-  
+
   current_module = cur_mod;
   if (cur_mod == MEM_MODULE)
 		mem_module_active = TRUE;
@@ -174,27 +179,56 @@ void idle()
 {
   char msg[30];
   int count=0;
-	
+
 	memset( msg, '\0', sizeof(msg));
 	strcpy(msg, "IDLE PROCESS EXECUTING.\n");
 	count = strlen(msg);
-  
+
   while(1){
-	sys_req( WRITE, DEFAULT_DEVICE, msg, &count);
+	  sys_req( WRITE, DEFAULT_DEVICE, msg, &count);
     sys_req(IDLE, DEFAULT_DEVICE, NULL, NULL);
   }
 }
-void infinite()
-{
-  char msg[30];
-  int count=0;
+// void infinite()
+// {
+//   char msg[30];
+//   int count=0;
 
-  memset( msg, '\0', sizeof(msg));
-  strcpy(msg, "INFINITE PROCESS EXECUTING.\n");
-  count = strlen(msg);
+//   memset( msg, '\0', sizeof(msg));
+//   strcpy(msg, "INFINITE PROCESS EXECUTING.\n");
+//   count = strlen(msg);
 
-  while(1){
-    sys_req( WRITE, DEFAULT_DEVICE, msg, &count);
-    sys_req(IDLE, DEFAULT_DEVICE, NULL, NULL);
+//   while(1){
+//     sys_req( WRITE, DEFAULT_DEVICE, msg, &count);
+//     sys_req(IDLE, DEFAULT_DEVICE, NULL, NULL);
+//   }
+// }
+
+u32int *sys_call(context *registers){
+  pcb* head = readyQ->head;
+  if(cop == NULL){
+    globalContext = registers;
   }
+  else{
+    if(params.op_code == IDLE){
+      // serial_println("idlinfg");
+      cop->stackTop = (unsigned char*) registers;
+      cop -> state = ready;
+      insertPCB(cop);
+    }
+    else if(params.op_code == EXIT){
+      freePCB(cop);
+    }
+  }
+
+  if(head != NULL){
+    // serial_println("head not empth");
+    // pcb* readyHead = readyQ->head;
+    removePCB(head);
+    head->state = running;
+    cop = head;
+    return(u32int*) cop->stackTop;
+  }
+
+  return (u32int*) globalContext;
 }
