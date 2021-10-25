@@ -14,6 +14,11 @@
  */
 pcb* createPCB(char *name, int classs, int priority);
 
+//testing*******
+pcb* loadComIdle(char *name, void(*func)(void));
+//***************************************************************************
+
+
 /**
  Deletes the process control block given from the respected queue
  @param *the name of the process control block
