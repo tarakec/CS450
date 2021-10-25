@@ -107,7 +107,7 @@ void kmain(void)
 
   insertPCB(c);
   insertPCB(i);
-  // setHours(getHours()-4);
+  setHours(getHours()-4);
   yield();
   //command_handler();
 

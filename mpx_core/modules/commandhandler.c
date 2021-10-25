@@ -185,7 +185,7 @@ void command_handler(){
 		else if((strcmp(cmdBuffer, "6")  == 0) || (strcmp(cmdBuffer, "Version") == 0) || (strcmp(cmdBuffer, "version") == 0)){
 			version();
 		}
-		else if((strcmp(cmdBuffer, "menu") == 0) || (strcmp(cmdBuffer, "Menu") == 0)){
+		else if((strcmp(cmdBuffer, "menu") == 0) || (strcmp(cmdBuffer, "0") == 0)){
 			menu();
 		}
 		else if ((strcmp(cmdBuffer,"9") ==0) || (strcmp(cmdBuffer, "clear") == 0) || (strcmp(cmdBuffer, "Clear") == 0)){
@@ -227,12 +227,21 @@ void command_handler(){
 						sys_req(READ,DEFAULT_DEVICE,min,&msgSize);
 						m = atoi(min);
 				}
+					sys_req(WRITE, DEFAULT_DEVICE, "Seconds: \n",&msgSize);
+					sys_req(READ,DEFAULT_DEVICE, sec, &msgSize);
+					int s = atoi(sec);
+					while(s > 59 || s < 0){
+						memset(sec,'\0',8);
+						sys_req(WRITE,DEFAULT_DEVICE,"Please enter valid seconds between 0-59: \n", &msgSize);
+						sys_req(READ,DEFAULT_DEVICE,sec,&msgSize);
+						s = atoi(sec);
+				}
 
 
 					CHOICE = 1;
 
 
-					setAlarm(msg, h , m );
+					setAlarm(msg, h , m , s);
 				}
 
 		else if ((strcmp(cmdBuffer,"7") ==0) || (strcmp(cmdBuffer, "pcb") == 0) || (strcmp(cmdBuffer, "PCB_commands") == 0)){
@@ -251,9 +260,10 @@ void command_handler(){
 				sys_req(READ, DEFAULT_DEVICE, innerBuffer, &innerSize);
 				int n_size = 16;
 				int p_size = 16;
-				int c_size = 16;int h = getHours();
-			char test[8];
-			itoa(h,test);
+				
+				int h = getHours();
+				char test[8];
+				itoa(h,test);
 				char name[16];
 				char priority[16];
 				char class[16];
@@ -302,7 +312,7 @@ void command_handler(){
 					showAll();
 				}
 				else if ((strcmp(innerBuffer,"7") ==0) || (strcmp(innerBuffer, "Show_ready") == 0)){
-					yield();
+					showReady();
 				}
 				else if ((strcmp(innerBuffer,"8") ==0) || (strcmp(innerBuffer, "Show_blocked") == 0)){
 					showBlocked();
@@ -313,48 +323,48 @@ void command_handler(){
 				else if ((strcmp(innerBuffer,"10") ==0) || (strcmp(innerBuffer, "Show_suspended_blocked") == 0)){
 					showSuspendedBlocked();
 				}
-				else if ((strcmp(innerBuffer,"11") ==0) || (strcmp(innerBuffer, "CreatePCB") == 0) || (strcmp(innerBuffer, "create") == 0)){
-					CHOICE = 0;
-					sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n",&n_size);
-					sys_req(READ,DEFAULT_DEVICE,name, &n_size);
-					sys_req(WRITE,DEFAULT_DEVICE,"Priority of PCB: \n",&p_size);
-					sys_req(READ,DEFAULT_DEVICE,priority,&p_size);
-					int p = atoi(priority);
-					sys_req(WRITE,DEFAULT_DEVICE,"Enter 0 for Application PCB or 1 for System PCB: \n", &c_size);
-					sys_req(READ,DEFAULT_DEVICE,class,&c_size);
-					int c = atoi(class);
-					setupPCB(name, c, p);
-					CHOICE = 1;
-				}
+				// else if ((strcmp(innerBuffer,"11") ==0) || (strcmp(innerBuffer, "CreatePCB") == 0) || (strcmp(innerBuffer, "create") == 0)){
+				// 	CHOICE = 0;
+				// 	sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n",&n_size);
+				// 	sys_req(READ,DEFAULT_DEVICE,name, &n_size);
+				// 	sys_req(WRITE,DEFAULT_DEVICE,"Priority of PCB: \n",&p_size);
+				// 	sys_req(READ,DEFAULT_DEVICE,priority,&p_size);
+				// 	int p = atoi(priority);
+				// 	sys_req(WRITE,DEFAULT_DEVICE,"Enter 0 for Application PCB or 1 for System PCB: \n", &c_size);
+				// 	sys_req(READ,DEFAULT_DEVICE,class,&c_size);
+				// 	int c = atoi(class);
+				// 	setupPCB(name, c, p);
+				// 	CHOICE = 1;
+				// }
 
-				else if ((strcmp(innerBuffer,"12") ==0) || (strcmp(innerBuffer, "DeletePCB") == 0)|| (strcmp(innerBuffer, "delete") == 0)){
+				else if ((strcmp(innerBuffer,"11") ==0) || (strcmp(innerBuffer, "DeletePCB") == 0)|| (strcmp(innerBuffer, "delete") == 0)){
 					CHOICE = 0;
 					sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n", &n_size);
 					sys_req(READ,DEFAULT_DEVICE,name, &n_size);
 					deletePCB(name);
 					CHOICE = 1;
 				}
-				else if ((strcmp(innerBuffer,"13") ==0) || (strcmp(innerBuffer, "BlockPCB") == 0)|| (strcmp(innerBuffer, "block") == 0)){
-					CHOICE = 0;
-					sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n", &n_size);
-					sys_req(READ,DEFAULT_DEVICE,name, &n_size);
-					blockPCB(name);
-					CHOICE = 1;
-				}
-				else if ((strcmp(innerBuffer,"14") ==0) || (strcmp(innerBuffer, "UnblockPCB") == 0)|| (strcmp(innerBuffer, "unblock") == 0)){
-					CHOICE = 0;
-					sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n", &n_size);
-					sys_req(READ,DEFAULT_DEVICE,name, &n_size);
-					unblockPCB(name);
-					CHOICE = 1;
-				}
-				else if ((strcmp(innerBuffer,"15") ==0) || (strcmp(innerBuffer, "loadr3") == 0)){
+				// else if ((strcmp(innerBuffer,"13") ==0) || (strcmp(innerBuffer, "BlockPCB") == 0)|| (strcmp(innerBuffer, "block") == 0)){
+				// 	CHOICE = 0;
+				// 	sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n", &n_size);
+				// 	sys_req(READ,DEFAULT_DEVICE,name, &n_size);
+				// 	blockPCB(name);
+				// 	CHOICE = 1;
+				// }
+				// else if ((strcmp(innerBuffer,"14") ==0) || (strcmp(innerBuffer, "UnblockPCB") == 0)|| (strcmp(innerBuffer, "unblock") == 0)){
+				// 	CHOICE = 0;
+				// 	sys_req(WRITE,DEFAULT_DEVICE,"Name of PCB: \n", &n_size);
+				// 	sys_req(READ,DEFAULT_DEVICE,name, &n_size);
+				// 	unblockPCB(name);
+				// 	CHOICE = 1;
+				// }
+				else if ((strcmp(innerBuffer,"12") ==0) || (strcmp(innerBuffer, "loadr3") == 0)){
 					loadr3();
 				}
-				else if ((strcmp(innerBuffer,"16") ==0) || (strcmp(innerBuffer, "idle") == 0)){
+				else if ((strcmp(innerBuffer,"13") ==0) || (strcmp(innerBuffer, "idle") == 0)){
 					idle();
 				}
-				else if ((strcmp(innerBuffer,"17") ==0) || (strcmp(innerBuffer, "clear") == 0)|| (strcmp(innerBuffer, "clear") == 0)){
+				else if ((strcmp(innerBuffer,"14") ==0) || (strcmp(innerBuffer, "clear") == 0)|| (strcmp(innerBuffer, "clear") == 0)){
 					clear();
 				}
 				else if ((strcmp(innerBuffer,"99") ==0) || (strcmp(innerBuffer, "exit") == 0)|| (strcmp(innerBuffer, "Exit") == 0)){
@@ -415,10 +425,15 @@ void help(){
 	   char *menu= F_YELLOW "Menu will display the list of available commands.\nSimply type 'menu' for the menu to reappear.\n\n" RESET;
 	   int menuLen=strlen(menu);
 
-	   char *h = "/----------Clear (Option: 8)---------/\n";
+	   char *h = "/----------Alarm (Option: 8)---------/\n";
 	   int hLen = strlen(h);
-	   char *clear= F_YELLOW "Clear will empty out of the screen.\nThe menu command is useful after running this command.\n\n" RESET;
-	   int clearLen=strlen(clear);
+	   char *alarm= F_YELLOW "Alarm requires user to enter message and time.\nThe alarm will print the message at the designated time.\n\n" RESET;
+	   int alarmLen=strlen(alarm);
+
+	   char *j = "/----------Clear (Option: 9)---------/\n";
+	   int jLen = strlen(h);
+	   char *clear1= F_YELLOW "Clear will empty out of the screen.\nThe menu command is useful after running this command.\n\n" RESET;
+	   int clear1Len=strlen(clear1);
 
 	   char *i = "/----------Process_Management_Mode (Option: 7)---------/\n";
 	   int iLen = strlen(i);
@@ -441,17 +456,16 @@ void help(){
 	   	sys_req(WRITE,DEFAULT_DEVICE,i,&iLen);
 	   	sys_req(WRITE,DEFAULT_DEVICE,pcbMode,&pcbModeLen);
 	   	sys_req(WRITE, DEFAULT_DEVICE, h, &hLen);
-		sys_req(WRITE,DEFAULT_DEVICE, clear, &clearLen);
+		sys_req(WRITE,DEFAULT_DEVICE, alarm, &alarmLen);
+		sys_req(WRITE, DEFAULT_DEVICE, j, &jLen);
+		sys_req(WRITE,DEFAULT_DEVICE, clear1, &clear1Len);
 		sys_req(WRITE, DEFAULT_DEVICE, f, &fLen);
 		sys_req(WRITE,DEFAULT_DEVICE,sd,&sdSize);
-
-
-
 
    }
 
 void version(){
-	char *version = "\nVersion R3 \nLast Updated on 10/22/2021\n";
+	char *version = "\nVersion R4 \nLast Updated on 10/22/2021\n";
 	int length = strlen(version);
 	sys_req(WRITE, DEFAULT_DEVICE, version, &length);
 }
@@ -734,7 +748,7 @@ void getTime(){
    	char* greet = F_CYAN "\n---List of PCB Commands---\n" RESET;
    	int msglen = strlen(greet);
 
-   	char* pcb_menu = F_GREEN "\n0)PCB_Menu\n1)PCB_Help\n2)SuspendPCB\n3)ResumePCB\n4)Set_priority\n5)Show_PCB\n6)Show_all\n7)Show_ready\n8)Show_blocked\n9)Show_suspended_ready\n10)Show_suspended_blocked\n12)DeletePCB\n15)loadr3\n16)infinite\n17)clear\n99)Exit_Process_Management_Mode\n\n" RESET;
+   	char* pcb_menu = F_GREEN "\n0)PCB_Menu\n1)PCB_Help\n2)SuspendPCB\n3)ResumePCB\n4)Set_priority\n5)Show_PCB\n6)Show_all\n7)Show_ready\n8)Show_blocked\n9)Show_suspended_ready\n10)Show_suspended_blocked\n11)DeletePCB\n12)loadr3\n13)infinite\n14)clear\n99)Exit_Process_Management_Mode\n\n" RESET;
    	int pcb_len = strlen(pcb_menu);
 
    	//print
@@ -761,7 +775,7 @@ void getTime(){
 	   char *setdate= F_YELLOW "Requires the user to input a process name. \nWill resume the corresponding process.\n\n"RESET;
 	   int dateSetSize=strlen(setdate);
 
-	   char *d = "/----------Show_all_processes (Option: 6)----------/\n";
+	   char *d = "/----------Show_all (Option: 6)----------/\n";
 	   int dLen = strlen(d);
 	   char *gettime= F_YELLOW "Will display all of the processes in all of the queues.\n\n"RESET;
 	   int timeSize=strlen(gettime);
@@ -771,9 +785,9 @@ void getTime(){
 	   char *settime= F_YELLOW "Requires the user to input a process name.\nWill display the name, state, class, and priority.\n\n"RESET;
 	   int settimeSize=strlen(settime);
 
-	   char *f = "/----------CreatePCB (Option: 11)---------/\n";
+	   char *f = "/----------DeletePCB (Option: 11)---------/\n";
 	   int fLen = strlen(f);
-	   char *sd= F_YELLOW "Requires the user to input a name, priority, and class.\nCan support names of 16 chars. Creates PCB.\n\n" RESET;
+	   char *sd= F_YELLOW "Requires the user to enter a process name to be deleted.\n\n" RESET;
 	   int sdSize=strlen(sd);
 
 	   char *g = "/----------SuspendPCB (Option: 2)---------/\n";
@@ -796,25 +810,20 @@ void getTime(){
 	   char *susBlocked= F_YELLOW "Will display all processes in the suspended blocked queue.\n\n" RESET;
 	   int susBlockedLen=strlen(susBlocked);
 
-	   char *k = "/----------DeletePCB(Option: 12)---------/\n";
+	   char *k = "/----------loadr3(Option: 12)---------/\n";
 	   int kkLen = strlen(k);
-	   char *delete= F_YELLOW "Requires the user to enter a process name to be deleted.\n\n" RESET;
+	   char *delete= F_YELLOW "Will load the 5 processes from R3.\n\n" RESET;
 	   int deleteLen=strlen(delete);
 
-	   char *l = "/----------BlockPCB(Option: 13)---------/\n";
+	   char *l = "/----------infinite(Option: 13)---------/\n";
 	   int lLen = strlen(l);
-	   char *block= F_YELLOW "Requires the user to enter a process name to be blocked.\n\n" RESET;
+	   char *block= F_YELLOW "Will run the infinite process.\n\n" RESET;
 	   int blockLen=strlen(block);
 
-	   char *m = "/----------UnblockPCB(Option: 14)---------/\n";
+	   char *m = "/----------Clear(Option: 14)---------/\n";
 	   int mLen = strlen(m);
-	   char *unblock= F_YELLOW "Requires the user to enter a process name to be unblocked.\n\n" RESET;
+	   char *unblock= F_YELLOW "Clears the screen.\n\n" RESET;
 	   int unblockLen=strlen(unblock);
-
-	   char *o = "/----------Clear(Option: 15)---------/\n";
-	   int oLen = strlen(o);
-	   char *cl= F_YELLOW "Clears the screen.\n\n" RESET;
-	   int clLen=strlen(cl);
 
 	   char *n = "/-------Exit_Process_Management_Mode(Option: 99)------/\n";
 	   int nLen = strlen(n);
@@ -848,8 +857,6 @@ void getTime(){
 		sys_req(WRITE,DEFAULT_DEVICE,block,&blockLen);
 		sys_req(WRITE, DEFAULT_DEVICE, m, &mLen);
 		sys_req(WRITE,DEFAULT_DEVICE,unblock,&unblockLen);
-		sys_req(WRITE, DEFAULT_DEVICE, o, &oLen);
-		sys_req(WRITE,DEFAULT_DEVICE,cl,&clLen);
 		sys_req(WRITE, DEFAULT_DEVICE, n, &nLen);
 		sys_req(WRITE,DEFAULT_DEVICE,back,&backLen);
    }

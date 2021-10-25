@@ -38,32 +38,3 @@ void kpanic(const char *msg)
   hlt(); //halt
 }
 
-
-// u32int *sys_call(context *registers){
-//   pcb* head = readyQ->head;
-//   if(cop == NULL){
-//     globalContext = registers;
-//   }
-//   else{
-//     if(params.op_code == IDLE){
-//       // serial_println("idlinfg");
-//       cop->stackTop = (unsigned char*) registers;
-//       cop -> state = ready;
-//       insertPCB(cop);
-//     }
-//     else if(params.op_code == EXIT){
-//       freePCB(cop);
-//     }
-//   }
-
-//   if(head != NULL){
-//     // serial_println("head not empth");
-//     // pcb* readyHead = readyQ->head;
-//     removePCB(head);
-//     head->state = running;
-//     cop = head;
-//     return(u32int*) cop->stackTop;
-//   }
-
-//   return (u32int*) globalContext;
-// }
