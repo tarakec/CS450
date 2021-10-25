@@ -189,20 +189,7 @@ void idle()
     sys_req(IDLE, DEFAULT_DEVICE, NULL, NULL);
   }
 }
-// void infinite()
-// {
-//   char msg[30];
-//   int count=0;
 
-//   memset( msg, '\0', sizeof(msg));
-//   strcpy(msg, "INFINITE PROCESS EXECUTING.\n");
-//   count = strlen(msg);
-
-//   while(1){
-//     sys_req( WRITE, DEFAULT_DEVICE, msg, &count);
-//     sys_req(IDLE, DEFAULT_DEVICE, NULL, NULL);
-//   }
-// }
 
 u32int *sys_call(context *registers){
   pcb* head = readyQ->head;
@@ -211,7 +198,6 @@ u32int *sys_call(context *registers){
   }
   else{
     if(params.op_code == IDLE){
-      // serial_println("idlinfg");
       cop->stackTop = (unsigned char*) registers;
       cop -> state = ready;
       insertPCB(cop);
