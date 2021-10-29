@@ -36,6 +36,7 @@ pcb* setupPCB(char *name, int class, int priority){
 			process -> class_= class;
 			process -> priority = priority;
             process -> state = ready;
+            process -> stackTop = process->stack + stackSize - sizeof(context);
 
 		return process;
 	}

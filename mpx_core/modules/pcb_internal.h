@@ -22,7 +22,9 @@ typedef struct pcb{
     int class_;
     int priority;
     int state;
-    int processStack;
+    unsigned char stack[stackSize];
+    unsigned char *stackTop;
+    unsigned char *stackBottom;
     struct pcb *next;
     struct  pcb *prev;
 }pcb;

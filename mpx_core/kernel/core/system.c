@@ -1,7 +1,14 @@
 #include <string.h>
 #include <system.h>
-
+#include <../modules/pcb_internal.h>
+#include <../modules/pcb_commands.h>
 #include <core/serial.h>
+#include <../modules/mpx_supt.h>
+
+// pcb* cop; //currently operating process
+// context *globalContext;
+// extern queue *readyQ;
+
 
 /*
   Procedure..: klogv
@@ -30,3 +37,4 @@ void kpanic(const char *msg)
   klogv(logmsg);
   hlt(); //halt
 }
+

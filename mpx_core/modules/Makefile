@@ -15,7 +15,9 @@ mpx_supt.o\
 polling_helper.o\
 commandhandler.o\
 pcb_internal.o\
-pcb_commands.o
+pcb_commands.o\
+procsr3.o\
+alarm.o
 
 .c.s:
 	$(CC) $(CFLAGS) -S -o $@ $<

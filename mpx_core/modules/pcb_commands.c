@@ -1,16 +1,19 @@
 
+
 #include "pcb_commands.h"
 #include "pcb_internal.h"
 #include "mpx_supt.h"
 #include <string.h>
 #include "commandhandler.h"
+#include "procsr3.h"
+#include "../include/core/serial.h"
 
 queue *readyQ;
 queue *blockedQ;
 queue *suspendedReadyQ;
 queue *suspendedBlockedQ;
 
-int createPCB(char *name, int classs, int priority){
+pcb* createPCB(char *name, int classs, int priority){
 
          if(priority > 9 || priority < 0){//checking for invalid priority
                   char *message = "Error: Priority must be integer between 0-9.\n";
@@ -33,7 +36,7 @@ int createPCB(char *name, int classs, int priority){
  
          pcb *newpcb = setupPCB(name,classs,priority);
          insertPCB(newpcb);
-         return 1;
+         return newpcb;
  }
  
  int deletePCB(char *name){
@@ -44,6 +47,12 @@ int createPCB(char *name, int classs, int priority){
 
      pcb *process = findPCB(name); // finds the pcb
 
+     if(!strcmp(name,"idle")){
+        if(process->state == ready){
+            serial_print("Cannot delete idle process in the ready state.\n");
+            return 0;
+        }
+     }
      if(removePCB(process) && (freePCB(process) != -1)){ //removes and frees it
         return 1;
      }
@@ -369,3 +378,67 @@ void printPCB(pcb *process){
     memset(str3,'\0',16);
     memset(str5,'\0',16);
 }
+pcb* load_proc(char *name, void(*func)(void)) {
+    pcb *newPcb = setupPCB(name, 1,1);
+    context *cp = (context*)(newPcb->stackTop);
+    newPcb->state = suspendedReady;
+    memset(cp,0,sizeof(context));
+    cp->fs = 0x10;
+    cp->gs = 0x10;
+    cp->ds = 0x10;
+    cp->es = 0x10;
+    cp->cs = 0x8;
+    cp->ebp = (u32int)(newPcb->stack);
+    cp->esp = (u32int)(newPcb->stackTop);
+    cp->eip = (u32int) func;
+    cp->eflags = 0x202;
+    return newPcb;
+}
+
+
+pcb* loadComIdle(char *name, void(*func)(void)) {
+    pcb *newPcb = createPCB(name, 1,1);
+    context *cp = (context*)(newPcb->stackTop);
+    newPcb->state = ready;
+    memset(cp,0,sizeof(context));
+    cp->fs = 0x10;
+    cp->gs = 0x10;
+    cp->ds = 0x10;
+    cp->es = 0x10;
+    cp->cs = 0x8;
+    cp->ebp = (u32int)(newPcb->stack);
+    cp->esp = (u32int)(newPcb->stackTop);
+    cp->eip = (u32int) func;
+    cp->eflags = 0x202;
+    return newPcb;
+}
+
+void loadr3(){
+     int size = 32;
+     insertPCB(load_proc("proc1", &proc1)); // needs processes but not sure who is initizalizing that 
+     sys_req(WRITE, DEFAULT_DEVICE, "Process 1 has been loaded!\n", &size);
+     insertPCB(load_proc("proc2", &proc2));
+     sys_req(WRITE, DEFAULT_DEVICE, "Process 2 has been loaded!\n", &size);
+     insertPCB(load_proc("proc3", &proc3));
+     sys_req(WRITE, DEFAULT_DEVICE, "Process 3 has been loaded!\n", &size);
+     insertPCB(load_proc("proc4", &proc4));
+     sys_req(WRITE, DEFAULT_DEVICE, "Process 4 has been loaded!\n", &size);
+     insertPCB(load_proc("proc5", &proc5));
+     sys_req(WRITE, DEFAULT_DEVICE, "Process 5 has been loaded!\n", &size);
+}
+
+void yield() {
+     asm volatile("int $60");
+}
+
+void allocateQueues(){
+    blockedQ = sys_alloc_mem(sizeof(struct queue));
+    blockedQ->count = 0;
+    readyQ = sys_alloc_mem(sizeof(struct queue));
+    readyQ->count = 0;
+    suspendedBlockedQ = sys_alloc_mem(sizeof(struct queue));
+    suspendedBlockedQ->count = 0;
+    suspendedReadyQ = sys_alloc_mem(sizeof(struct queue));
+    suspendedReadyQ->count = 0;
+}
+

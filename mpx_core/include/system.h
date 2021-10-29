@@ -51,4 +51,12 @@ static inline int irq_on()
 void klogv(const char *msg);
 void kpanic(const char *msg);
 
+typedef struct context{
+  u32int gs,fs,es,ds;
+  u32int eax,ebx,ecx,edx,edi,esi,ebp,esp;
+  u32int eip,cs,eflags;
+}context;
+
+u32int *sys_call(context *registers);
+
 #endif
