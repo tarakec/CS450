@@ -1,16 +1,3 @@
-
-#include "commandhandler.h"
-#include "mpx_supt.h"
-#include <stdint.h>
-#include <string.h>
-#include <../include/core/io.h>
-#include <../include/core/serial.h>
-#include "polling_helper.h"
-#include "pcb_internal.h"
-#include "pcb_commands.h"
-#include "alarm.h"
-#include <string.h>
-#include "mem_management.h"
 list heap;
 u32int memory_start;
 u32int heapSize = 0;
@@ -186,43 +173,5 @@ int allocateMemory(u32int size) {
         curr_prev->next = allocated;
         curr_next->prev = allocated;
       }
-
-
-      
   }
-  
-
-  
-}
-
-
-
-//return int for error checking?
-int freeMemory(cmcb * toBeFreed){
-    cmcb *currHeap = heap.head;
-    
-    //error checking
-    if(toBeFreed->type != allocated || currHeap == NULL){
-        return 1; //cmcb is not allocated
-    }
-            //change the current node to free
-            toBeFreed->type = free;
-
-            //look to the left
-            if(toBeFreed->prev->type == free){
-                toBeFreed->size = toBeFreed->size +toBeFreed->prev->size; //merge the two blocks
-
-                toBeFreed->prev = toBeFreed->prev->prev; //link list back together without old free block
-
-            }
-
-            //look right
-            if(toBeFreed->next ->type == free){
-                toBeFreed->size = toBeFreed->size +toBeFreed->next->size; //merge the two blocks
-
-                toBeFreed->next = toBeFreed -> next->next; //link list back together with new free block
-
-            }
-       
-    
 }

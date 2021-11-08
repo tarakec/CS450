@@ -2,6 +2,7 @@
 #define _MEM_H
 
 #define free 0
+#define allocated 1
 
 typedef struct cmcb{
     int type;
