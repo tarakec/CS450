@@ -11,7 +11,9 @@
 #include "alarm.h"
 #include <string.h>
 #include "mem_management.h"
-list heap;
+#include <../include/mem/heap.h>
+
+list heapPtr;
 u32int memory_start;
 u32int heapSize = 0;
 
@@ -23,9 +25,9 @@ void init_heap(u32int size) {
   firstCmcb->size = size;
   firstCmcb->beginAddr = (u32int) memory_start + sizeof(cmcb);
 
-  heap.head = firstCmcb;
-  heap.next = NULL;
-  heap.prev = NULL;
+  heapPtr.head = firstCmcb;
+  heapPtr.head->next = NULL;
+  heapPtr.head->prev = NULL;
  
   heapSize += firstCmcb->size;
 
@@ -33,12 +35,11 @@ void init_heap(u32int size) {
 
 //return 0 for error, 1 for success ?
 int allocateMemory(u32int size) {
-  cmcb *curr = heap.head;
+  cmcb *curr =heapPtr.head;
 
 
   //grabbing the required size for the entire block allocation
   u32int required_size = size + sizeof(cmcb);
-  u32int curr_size;
 
 
   //while there is a curr 
@@ -47,19 +48,18 @@ int allocateMemory(u32int size) {
     //if the current node's size is greater than the required size and if the current node is free
     if(curr->size>= required_size && curr->type == free){
 
-        //grab the size and break out the loop
-      curr_size = curr->size;
+     //break out of the loop
       break;
     }
 
     //traverse
-    curr = curr.next;
+    curr = curr->next;
 
 
     //if reach the end of the heap and still not broke from loop, then not enough memory for allocation
-    if (curr.next == NULL){
+    if (curr->next == NULL){
         serial_print("Not enough memory for the allocation.");
-        return 0;
+        return 1;
     }
     
   }
@@ -67,83 +67,82 @@ int allocateMemory(u32int size) {
   heapSize-=required_size;
 
   //case where the heap is empty 
-  if(curr == heap.head && curr.next == NULL){
-      cmcb *allocated = heap.head;
-      cmcb *leftoverFree;
+  if(curr == heapPtr.head && curr->next == NULL){
+      cmcb *allocate = heapPtr.head;
+      cmcb *leftoverFree =(cmcb*) (required_size + sizeof(cmcb));
 
-      allocated->type = allocated;
-      allocated->size = size;
+      allocate->type = allocated;
+      allocate->size = size;
 
 
       //if there is leftover free memory after the allocation
       if(curr->size > required_size){
 
-          allocated->next = leftoverFree;
+          allocate->next = leftoverFree;
           leftoverFree->type = free;
           leftoverFree->beginAddr = required_size + sizeof(cmcb);
           leftoverFree-> size = heapSize;
-          leftoverFree->prev = allocated;
+          leftoverFree->prev = allocate;
           leftoverFree->next = NULL;
       }
-      else{
-        //if there is no leftover free memory after the allocation
-        allocated->next == NULL
-      }
+
+      return 0;
   }
       
 
 // case where the curr is at the tail of the heap an the list is not empty
-  else if(curr != heap.head && curr->next == NULL){
+  else if(curr != heapPtr.head && curr->next == NULL){
 
-      cmcb *allocated = curr;
-      cmcb *leftoverFree;
-
-      allocated->type = allocated;
-      allocated->size = size;
-      allocated->prev = curr->prev;
-      allocated->beginAddr = (u32int) curr + sizeof(cmcb);
+      cmcb *allocate = curr;
+     
+      allocate->type = allocated;
+      allocate->size = size;
+      allocate->prev = curr->prev;
+      allocate->beginAddr = (u32int) curr + sizeof(cmcb);
+      cmcb *leftoverFree = (cmcb*) (allocate->beginAddr + size + sizeof(cmcb));
 
       //if there is leftover free memory after the allocation
       if(curr->size > required_size){
 
-          allocated->next = leftoverFree;
+          allocate->next = leftoverFree;
           
           leftoverFree->type = free;
-          leftoverFree->beginAddr = allocated->beginAddr + size + sizeof(cmcb);
+          leftoverFree->beginAddr = allocate->beginAddr + size + sizeof(cmcb);
           leftoverFree->size = heapSize;
-          leftoverFree->prev = allocated;
+          leftoverFree->prev = allocate;
           leftoverFree->next = NULL;
       }
       else{
         //if there is no leftover free memory after the allocation
-        allocated->next = NULL;
+        allocate->next = NULL;
       }
+
+      return 0;
       
 
   }
   //case where the curr is at the heap head but the list is not empty
-  else if(curr == heap.head && curr->next != NULL){
-      cmcb *allocated = heap.head;
-      cmcb *leftoverFree;
+  else if(curr == heapPtr.head && curr->next != NULL){
+      cmcb *allocate = heapPtr.head;
+      
 
-      allocated->type = allocated;
-      allocated->size = size;
+      allocate->type = allocated;
+      allocate->size = size;
 
+      cmcb *leftoverFree = (cmcb*) (required_size + sizeof(cmcb));
 
       //if there is leftover free memory after the allocation
       if(curr->size > required_size){
 
-          allocated->next = leftoverFree;
+          allocate->next = leftoverFree;
           leftoverFree->type = free;
           leftoverFree->beginAddr = required_size + sizeof(cmcb);
           leftoverFree-> size = heapSize;
-          leftoverFree->prev = allocated;
-          leftoverFree->next = heap.head->next;
+          leftoverFree->prev = allocate;
+          leftoverFree->next = heapPtr.head->next;
       }
-      else{
-        //if there is no leftover free memory after the allocation
-        allocated->next == heap.head->next
-      }
+
+      return 0;
       
   }
   else{
@@ -154,23 +153,23 @@ int allocateMemory(u32int size) {
 
 
       //create the allocated block
-      cmcb *allocated = curr;
-      allocated->type = allocated;
-      allocated->beginAddr = (u32int) curr + sizeof(cmcb);
-      allocated->size = size;
+      cmcb *allocate = curr;
+      allocate->type = allocated;
+      allocate->beginAddr = (u32int) curr + sizeof(cmcb);
+      allocate->size = size;
 
       //leftover free memory after the allocation
       if(curr->size > required_size){
 
-        cmcb leftoverFree;
+        cmcb *leftoverFree = (cmcb*) (allocate->beginAddr + size + sizeof(cmcb));
         leftoverFree->type = free;
-        leftoverFree->beginAddr = allocated->beginAddr + size + sizeof(cmcb);
+        leftoverFree->beginAddr = allocate->beginAddr + size + sizeof(cmcb);
         leftoverFree->size = heapSize;
-        leftoverFree->prev = allocated;
+        leftoverFree->prev = allocate;
         leftoverFree->next = curr_next;
-        allocated->next= leftoverFree;
-        allocated->prev = curr_prev;
-        curr_prev->next = allocated;
+        allocate->next= leftoverFree;
+        allocate->prev = curr_prev;
+        curr_prev->next = allocate;
         curr_next->prev = leftoverFree;
       }
 
@@ -178,28 +177,22 @@ int allocateMemory(u32int size) {
       else{
 
         //assign the next and prev for allocated block
-        allocated->next = curr_next;
-        allocated->prev = curr_prev;
+        allocate->next = curr_next;
+        allocate->prev = curr_prev;
 
 
         //connect the node into the heap
-        curr_prev->next = allocated;
-        curr_next->prev = allocated;
+        curr_prev->next = allocate;
+        curr_next->prev = allocate;
       }
 
-
-      
+      return 0;
   }
-  
-
-  
 }
-
-
 
 //return int for error checking?
 int freeMemory(cmcb * toBeFreed){
-    cmcb *currHeap = heap.head;
+    cmcb *currHeap = heapPtr.head;
     
     //error checking
     if(toBeFreed->type != allocated || currHeap == NULL){
@@ -223,6 +216,8 @@ int freeMemory(cmcb * toBeFreed){
                 toBeFreed->next = toBeFreed -> next->next; //link list back together with new free block
 
             }
+
+            return 0;
        
     
 }
