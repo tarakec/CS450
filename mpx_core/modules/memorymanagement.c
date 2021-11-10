@@ -203,7 +203,7 @@ cmcb *curr = NULL;
         sys_req(WRITE, DEFAULT_DEVICE, empty_msg, &empty_msg_size);
       }
 
-  //otherwise go through 
+  //otherwise go through  
   else{
     curr = heap.head;
     
