@@ -326,12 +326,48 @@ void merge(cmcb * curr){
             beginAddr.head = currPtr;
             free_list.head = freePtr;
         }
-
-
-        
-
-    
-
-    
 }
+        void show_list(int type)
+        {
+            cmcb * curr = NULL;
+
+            if (type == 0){
+                curr = free_list.head;
+            }
+            if (curr == NULL){
+                char *msg;
+                if (type == 0)
+                {
+                    msg = "\nThere's nothing in the free memory list!\n";
+                }
+                int msg_size = strlen(msg);
+                sys_req(WRITE, DEFAULT_DEVICE, msg, &msg_size);
+            }
+            else
+            {
+                while (curr != NULL)
+                {
+                    char block_size[30];
+                    char block_addr[30];
+                    char *msg = "\nsize: "; // change the message to "size:""
+
+                    int msg_size = strlen(msg);
+                    sys_req(WRITE, DEFAULT_DEVICE, msg, &msg_size);
+
+                    itoa(curr->size, block_size);
+                    int block_msg_size = strlen(block_size);
+                    sys_req(WRITE, DEFAULT_DEVICE, block_size, &block_msg_size);
+
+                    char *addr_msg = "\naddress: ";
+                    msg_size = strlen(msg);
+                    sys_req(WRITE, DEFAULT_DEVICE, addr_msg, &msg_size);
+
+                    itoa(curr->beginAddr, block_addr);
+                    int block_addr_size = strlen(block_addr);
+                    sys_req(WRITE, DEFAULT_DEVICE, block_addr, &block_addr_size);
+
+                    curr = curr->next;
+                }
+            }
+        }
 
