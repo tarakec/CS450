@@ -488,7 +488,7 @@ void help(){
 
    }
 void version(){
-	char *version = "\nVersion R1 \nLast Updated on 9/9/2021\n";
+	char *version = "\nVersion R5 \nLast Updated on 11/12/2021\n";
 =======
 		sys_req(WRITE,DEFAULT_DEVICE,a,&aLen);
 	   	sys_req(WRITE,DEFAULT_DEVICE,ver,&verSize);
@@ -504,7 +504,7 @@ void version(){
    }
 
 void version(){
-	char *version = "\nVersion R4 \nLast Updated on 10/22/2021\n";
+	char *version = "\nVersion R5 \nLast Updated on 11/12/2021\n";
 >>>>>>> c8b67b3f891b9bc7cb0641db1562e08baa685e66
 	int length = strlen(version);
 	sys_req(WRITE, DEFAULT_DEVICE, version, &length);
