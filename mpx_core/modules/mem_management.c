@@ -55,8 +55,8 @@ int allocateMemory(u32int size) {
 
 
     //if reach the end of the heap and still not broke from loop, then not enough memory for allocation
-    if (curr->next == NULL){
-        serial_print("Not enough memory for the allocation.");
+    if (curr == NULL){
+        serial_print("\nNot enough memory for the allocation.\n\n");
         return 0;
     }
     
@@ -87,7 +87,7 @@ int allocateMemory(u32int size) {
   }
 
 
-    serial_print("Allocation was sucessfull..");
+    serial_print("\nAllocation was sucessfull..\n\n");
       return 1;
 }
 
@@ -104,25 +104,26 @@ int freeMemory(cmcb * toBeFreed){
 
             //change the current node to free
             toBeFreed->type = free;
-            
+
+            //look to the left
+            if(toBeFreed->prev->type == free){
+                toBeFreed->size = toBeFreed->size +toBeFreed->prev->size + sizeof(cmcb); //merge the two blocks
+
+                toBeFreed->prev = toBeFreed->prev->prev; //link list back together without old free block
+
+            }
             //look right
-            if(toBeFreed->next ->type == free){
-                toBeFreed->size = toBeFreed->size +toBeFreed->next->size; //merge the two blocks
+            if(toBeFreed->next->type == free){
+                toBeFreed->size = toBeFreed->size +toBeFreed->next->size + sizeof(cmcb); //merge the two blocks
 
                 toBeFreed->next = toBeFreed -> next->next; //link list back together with new free block
 
             }
   
-            //look to the left
-            if(toBeFreed->prev->type == free){
-                toBeFreed->size = toBeFreed->size +toBeFreed->prev->size; //merge the two blocks
-
-                toBeFreed->prev = toBeFreed->prev->prev; //link list back together without old free block
-
-            }
+            
 
             
-            serial_print("Memory was freed...");
+            serial_print("\nMemory was freed...\n\n");
 
             return 0;
        
@@ -136,7 +137,7 @@ int showFree(){
     //if the head is equal to NULL, hasn't been created yet
     if (curr == NULL){
         char *msg;
-        msg = "\nHeap hasn't been initialized!\n";
+        msg = "\nHeap hasn't been initialized!\n\n";
         int msg_size = strlen(msg);
         sys_req(WRITE, DEFAULT_DEVICE, msg, &msg_size);
 
@@ -168,6 +169,7 @@ int showFree(){
                 int block_addr_size = strlen(block_addr);
                 sys_req(WRITE, DEFAULT_DEVICE, block_addr, &block_addr_size);
                 sys_req(WRITE,DEFAULT_DEVICE,"\n",&misc);
+                sys_req(WRITE,DEFAULT_DEVICE,"\n",&misc);
 
                 curr = curr->next;
 
@@ -190,7 +192,7 @@ cmcb *curr = heapPtr.head;
     
     if (curr == NULL){
         char *msg;
-        msg = "\nHeap hasn't been initialized!\n";
+        msg = "\nHeap hasn't been initialized!\n\n";
         int msg_size = strlen(msg);
         sys_req(WRITE, DEFAULT_DEVICE, msg, &msg_size);
         return 0;
@@ -199,7 +201,7 @@ cmcb *curr = heapPtr.head;
 
     //check if empty
       if(isEmpty()){
-            char *empty_msg="\nThere is no allocated memory, the heap is empty!\n";
+            char *empty_msg="\nThere is no allocated memory, the heap is empty!\n\n";
             int empty_msg_size = strlen(empty_msg);
             sys_req(WRITE, DEFAULT_DEVICE, empty_msg, &empty_msg_size);
             return 0;
@@ -234,6 +236,7 @@ cmcb *curr = heapPtr.head;
               itoa(curr->beginAddr, block_add);
               int block_add_size = strlen(block_add);
               sys_req(WRITE, DEFAULT_DEVICE, block_add, &block_add_size);
+              sys_req(WRITE,DEFAULT_DEVICE,"\n",&misc);
               sys_req(WRITE,DEFAULT_DEVICE,"\n",&misc);
 
               curr = curr->next;
@@ -276,6 +279,6 @@ cmcb* addressCheck(u32int address){
     }
 
      curr = NULL;
-     serial_print("Couldn't locate the free block with the address given...");
+     serial_print("Couldn't locate the free block with the address given...\n");
      return curr;
 }

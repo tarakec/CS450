@@ -253,6 +253,8 @@ void command_handler(){
 				char size[16];
 				int s = 16;
 
+				memset(size,'\0',16);
+
 				CHOICE = 0;
 				sys_req(WRITE,DEFAULT_DEVICE,"Size of Allocation: \n",&s);
 				sys_req(READ,DEFAULT_DEVICE,size, &s);
@@ -264,6 +266,8 @@ void command_handler(){
 		else if ((strcmp(cmdBuffer,"11") ==0) || (strcmp(cmdBuffer, "Free") == 0) || (strcmp(cmdBuffer, "free") == 0)){
 				char address[16];
 				int a = 16;
+
+				memset(address,'\0',16);
 
 				CHOICE = 0;
 				sys_req(WRITE,DEFAULT_DEVICE,"Address of Memory to be Freed:  \n",&a);
@@ -281,10 +285,10 @@ void command_handler(){
 			}
 		else if ((strcmp(cmdBuffer,"14") ==0) || (strcmp(cmdBuffer, "Is_Empty") == 0) || (strcmp(cmdBuffer, "is_empty") == 0)){
 				if(isEmpty()){
-					serial_print("Heap is empty!\n");
+					serial_print("\nHeap is empty!\n\n");
 				}
 				else{
-					serial_print("Heap is not empty!\n");
+					serial_print("\nHeap is not empty!\n\n");
 				}
 			}
 
