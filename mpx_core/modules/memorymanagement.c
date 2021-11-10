@@ -53,35 +53,54 @@ void allocate(u32int size) {
 
 //return int for error checking?
 int freeMemory(cmcb * toBeFreed){
-    cmcb *curr = beginAddr.head;
-
+    cmcb *currHeap = beginAddr.head;
+    cmcb * mergePtr;
     //error checking
-    if(toBeFreed->type != allocated || curr == NULL){
+    if(toBeFreed->type != allocated || currHeap == NULL){
         return 1; //cmcb is not allocated
     }
     
-    while(curr != NULL){
-        if(curr == toBeFreed){
+    while(currHeap != NULL){
+        if(currHeap == toBeFreed){
             //remove from allocated list
-            cmcb * alloc = allocated_list.head;
+            cmcb * allocPtr = allocated_list.head;
             cmcb * new_alloc;
-            while(alloc !=NULL){
-                if(alloc == toBeFreed){
-                    break;
-                }
-                //build new list
-                new_alloc = alloc;
-                alloc = alloc->next;
-            }
-            if(alloc == NULL){
+
+            if(allocPtr == NULL){
                 return 1; //allocated list is empty
             }
-            else if(alloc == allocated_list.head){
-                allocated_list.head = allocated_list.head->next;
+            else if(toBeFreed == allocated_list.head){
+                allocated_list.head = allocated_list.head->next; //edit sllocated_list directly
+            }
+            else if(allocPtr->prev == NULL && allocPtr->next == NULL){
+                //one thing in allocated list
+                allocated_list.head == NULL;
             }
             else{
-                new_alloc->next = alloc->next;
-                //traverse back to new_alloc's head to overwrite the allocated_list
+                //find the right spot in the allocated list
+                while(allocPtr!=NULL){
+                    if(allocPtr == toBeFreed){
+                        break;
+                    }
+                    allocPtr = allocPtr->next;
+                }
+                if(allocPtr->next == NULL){
+                    //we are at (removing) the tail
+                    new_alloc = allocPtr->prev;
+                    new_alloc->next = NULL;
+                }
+                if(allocPtr -> prev == NULL){
+                    //we are removing at the head
+                    new_alloc = allocPtr->next;
+                    new_alloc->prev = NULL;
+                }
+
+                else{
+                    new_alloc = allocPtr ->next;
+                    new_alloc ->prev = allocPtr->prev;
+                }
+
+                //reset allocated list
                 while(new_alloc->prev!=NULL){
                     new_alloc = new_alloc->prev; //at head of new allocated list
                 }
@@ -90,79 +109,229 @@ int freeMemory(cmcb * toBeFreed){
                 allocated_list.head = new_alloc;
             }
 
+            
+            
+
             //place into free list
             cmcb * free_ptr = free_list.head;
             cmcb * new_free;
-            while(free_ptr != NULL){
-                if(free_ptr->next == curr->next){
-                    //if the next nodes are the same the new node (newly feed) belongs after the ptr
-                    break;
-                }
-                free_ptr = free_ptr->next;
+            allocPtr ->type = free;
 
-            //nothing in free list yet
-            if(free_ptr == NULL){
-                free_list.head = alloc; //place old node into fee list
+            if(free_ptr == NULL){ //nothing in free list yet
+                free_list.head = allocPtr; //place old node into actual free list
             }
-            else{
-                new_free = free_ptr->next;
-                new_free->prev = curr; 
-                free_ptr ->next = new_free->prev;
-
-                //traverse to head of new free list
-                while(free_ptr->prev!=NULL){
-                    free_ptr = free_ptr->prev;
+            else{ //something in list
+                if(free_ptr ->prev == NULL && free_ptr ->next == NULL){
+                    //one thing in the free list - need to determine whether it gets inserted before or after
+                    //loop through heap to find where the free block lives
+                    cmcb * heapCtrl = beginAddr.head;
+                    while(heapCtrl != NULL){
+                        if(heapCtrl->type == free){
+                            break; //break on the first (should be only) free block found
+                        }
+                        heapCtrl = heapCtrl->next;
+                    }
+                    //heap control now equals the free block
+                    //look to the left of it
+                    if(heapCtrl->prev == toBeFreed){
+                        //gets inserted behind the only free block
+                        free_list.head->prev = allocPtr;
+                        
+                    }
+                    if(heapCtrl->next == toBeFreed){
+                        free_list.head->next = allocPtr;
+                    }
                 }
-                free_list.head = free_ptr;
-            }
+                else{//more than one thing in free list
+                    //loop through to find the correct freePtr
+                    cmcb * heapCtrl = beginAddr.head;
+                    while(heapCtrl != NULL){
+                        if(heapCtrl == toBeFreed){
+                            if(heapCtrl->prev->type == free && heapCtrl->next->type == free){
+                                //needs to be inserted between these two in the free list
+                                //loop through free list to find where it belongd
+                                while(free_ptr!=NULL){
+                                    if(free_ptr == heapCtrl->prev){
+                                        //insert between these nodes in the free list
+                                        new_free = allocPtr;
+                                        new_free->prev = free_ptr;
+                                        new_free->next = free_ptr->next;
+                                        break;
+                                    }
+                                free_ptr= free_ptr->next;
+                                }
+                            }
+                            else if(heapCtrl->prev->type == free){
+                                //needs to be inserted after this node in the free list
+                                        while(free_ptr!=NULL){
+                                            if(free_ptr == heapCtrl->prev){
+                                                //insert after this nodes in the free list
+                                                new_free = allocPtr;
+                                                new_free->prev = free_ptr;
+                                                new_free->next = free_ptr->next;
+                                                break;
+                                            }
+                                            free_ptr= free_ptr->next;
+                                        }
+                            }
+                            else if(heapCtrl->next->type == free){
+                                //needs to be inserted before this node in the free list
+                                while(free_ptr!=NULL){
+                                    if(free_ptr == heapCtrl->next){
+                                        //insert before this node in the free list
+                                        new_free = allocPtr;
+                                        new_free->next = free_ptr;
+                                        new_free->prev = free_ptr->prev;
+                                        break;
+                                    }
+                                free_ptr= free_ptr->next;
+                                }
+                            }
+                            else if(heapCtrl ->prev->type != free){
+                                //loop left to see if the free block exists before
+                                while(heapCtrl!=NULL){
+                                    if(heapCtrl->type == free){
+                                        break;
+                                    }
+                                    heapCtrl= heapCtrl->prev;
+                                }
+                                
+                                 while(free_ptr!=NULL){
+                                    if(free_ptr == heapCtrl){
+                                        //insert after this node in the free list
+                                        new_free = allocPtr;
+                                        new_free->prev = free_ptr;
+                                        new_free->next = free_ptr->prev;
+                                        break;
+                                    }
+                                 free_ptr= free_ptr->next;
+                                }
+
+                            }
+                            else if(heapCtrl ->next->type != free){
+                                //loop right to see if the free block exists after
+                                while(heapCtrl!=NULL){
+                                    if(heapCtrl->type == free){
+                                        break;
+                                    }
+                                    heapCtrl= heapCtrl->next;
+                                }
+                                
+                                 while(free_ptr!=NULL){
+                                    if(free_ptr == heapCtrl){
+                                        //insert before this node in the free list
+                                        new_free = allocPtr;
+                                        new_free->next = free_ptr;
+                                        new_free->prev = free_ptr->prev;
+                                        break;
+                                    }
+                                 free_ptr= free_ptr->next;
+                                }
+
+                            }
+                            
+                        }
 
 
-            //this might be helpful to merging?
-            // cmcb *free_temp = free_list.head;
-            // while(free_temp != NULL){
-            //     if(free_temp == alloc){
-            //         free_temp->size += alloc->size;
-            //         break;
-            //     }
-            //     free_temp = free_temp->next;
-            // }
+                        heapCtrl= heapCtrl->next;
+                    }
 
-            //merge adjecent free blocks
-            cmcb * curr_ptr = curr; //make pointer to curr
-            cmcb * merged_free = curr;
-            u32int merging_size;
+                    //loop to head of new free and reset free list
+                    while(new_free->prev !=NULL){
+                        new_free= new_free->prev;
+                    }
 
-            //look left of the current place in the heap
-            while(curr_ptr->prev != NULL){
-                if(curr_ptr->prev->type != allocated){
-                     merging_size = merging_size + curr_ptr->prev->size;
-                     merged_free ->size = merged_free->size + merging_size;
+                    free_list.head = new_free;
+                }   
+             } 
 
-                }
-                 curr_ptr=curr_ptr->prev;   
-            }
+             //reassign the node in the head to be free
+             currHeap->type = free;
+             //save this pointer for merging
+             mergePtr = currHeap;
+             //loop to head of the pointer's list
+             while(currHeap->prev !=NULL){
+                 currHeap = currHeap->prev;
+             }
 
-            //look to the right of the current place in the heap
-            //reset curr_ptr
-            curr_ptr = curr;
-            while(curr_ptr->next != NULL){
-                if(curr_ptr->next->type != allocated){
-                    merging_size = merging_size + curr_ptr->next->size;
-                    merged_free ->size = merged_free->size + merging_size;
-                }
-                curr_ptr = curr_ptr->next;
-            }
+             beginAddr.head = currHeap;
 
-
-            //now we have looked left and right and found the total size to add to our new heap
             
-
-            
-            
-
-            
-
 
         }
+        currHeap= currHeap->next; //move on in loop
     }
+
+    merge(mergePtr); //merge all of the lists   
+    
 }
+
+void merge(cmcb * curr){
+    cmcb * currPtr = curr; 
+    cmcb * newly_merged;
+    cmcb * newly_merged_free;
+    u32int merged_size;
+    cmcb * freePtr = free_list.head;
+
+    //look to the left of the pointer
+        if(curr->prev->type == free){
+            newly_merged = curr;
+            newly_merged -> size = curr->size + curr->prev->size;
+
+            //merge free list
+            
+            while(freePtr != NULL){
+                if(freePtr == curr){
+                    newly_merged_free = freePtr;
+                    newly_merged_free -> size = freePtr->size + freePtr->prev->size;
+                    break;
+                    
+                }
+                else{
+                    freePtr = freePtr -> next;
+                }
+                
+            }
+            //merge heap
+            newly_merged -> prev = currPtr ->prev->prev;
+            newly_merged -> next = currPtr->next;
+            
+            merge(currPtr);
+        }
+        else if(curr->next->type == free){//look to the right 
+            newly_merged = curr;
+            newly_merged ->size = curr->size + curr->next->size;
+
+            //merge free list
+            while(freePtr != NULL){
+                if(freePtr == curr){
+                    newly_merged_free = freePtr;
+                }
+            }
+            newly_merged -> next = currPtr -> next-> next;
+            newly_merged -> prev = currPtr -> prev;
+            merge(currPtr);
+        }
+        else{
+            //loop to head of the lists
+            while(currPtr != NULL){
+                currPtr = currPtr -> prev;
+            }
+
+            while(freePtr != NULL){
+                freePtr = freePtr -> prev;
+            }
+
+
+            beginAddr.head = currPtr;
+            free_list.head = freePtr;
+        }
+
+
+        
+
+    
+
+    
+}
+
