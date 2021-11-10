@@ -8,10 +8,13 @@
 #include "pcb_internal.h"
 #include "pcb_commands.h"
 #include "alarm.h"
+#include "mem_management.h"
 
 extern int CHOICE;
 
 queue *readyQ;
+
+
 
 void command_handler(){
 
@@ -34,6 +37,9 @@ void command_handler(){
 	int bufferSize; //size of the buffer
 	int quit=0;
 	int innerQuit = 0;
+
+	u32int sizeofHeap = 1000;
+	init_heap(sizeofHeap);
 
 
 	while(!quit) {
@@ -242,9 +248,48 @@ void command_handler(){
 
 
 					setAlarm(msg, h , m , s);
+			}
+		else if ((strcmp(cmdBuffer,"10") ==0) || (strcmp(cmdBuffer, "Allocate") == 0) || (strcmp(cmdBuffer, "allocate") == 0)){
+				char size[16];
+				int s = 16;
+
+				CHOICE = 0;
+				sys_req(WRITE,DEFAULT_DEVICE,"Size of Allocation: \n",&s);
+				sys_req(READ,DEFAULT_DEVICE,size, &s);
+				u32int num =(u32int) atoi(size);
+				allocateMemory(num);
+				CHOICE = 1;
+			}
+
+		else if ((strcmp(cmdBuffer,"11") ==0) || (strcmp(cmdBuffer, "Free") == 0) || (strcmp(cmdBuffer, "free") == 0)){
+				char address[16];
+				int a = 16;
+
+				CHOICE = 0;
+				sys_req(WRITE,DEFAULT_DEVICE,"Address of Memory to be Freed:  \n",&a);
+				sys_req(READ,DEFAULT_DEVICE,address, &a);
+				u32int addr =(u32int) atoi(address);
+				cmcb* toBeFreed = addressCheck(addr);
+				freeMemory(toBeFreed);
+				CHOICE = 1;
+			}
+		else if ((strcmp(cmdBuffer,"12") ==0) || (strcmp(cmdBuffer, "Show_Free") == 0) || (strcmp(cmdBuffer, "show_free") == 0)){
+				showAllocated();
+			}
+		else if ((strcmp(cmdBuffer,"13") ==0) || (strcmp(cmdBuffer, "Show_Allocated") == 0) || (strcmp(cmdBuffer, "show_allocated") == 0)){
+				showFree();
+			}
+		else if ((strcmp(cmdBuffer,"14") ==0) || (strcmp(cmdBuffer, "Is_Empty") == 0) || (strcmp(cmdBuffer, "is_empty") == 0)){
+				if(isEmpty()){
+					serial_print("Heap is empty!\n");
 				}
+				else{
+					serial_print("Heap is not empty!\n");
+				}
+			}
 
 		else if ((strcmp(cmdBuffer,"7") ==0) || (strcmp(cmdBuffer, "pcb") == 0) || (strcmp(cmdBuffer, "PCB_commands") == 0)){
+
 			innerQuit = 0;
 			PCB_menu();
 			char *pcbPrompt = F_CYAN "\nPROCESS MANAGEMENT MODE..\n" RESET;
@@ -734,7 +779,7 @@ void getTime(){
 
    void menu(){
    	//initial greeting
-	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"1)Help\n2)Set_date\n3)Get_date\n4)Set_time\n5)Get_time\n6)Version\n7)Process_Management_Mode\n8)alarm\n9)clear\n99)Quit\n\n" RESET;
+	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"1)Help\n2)Set_date\n3)Get_date\n4)Set_time\n5)Get_time\n6)Version\n7)Process_Management_Mode\n8)alarm\n9)clear\n10)Allocate\n11)Free\n12)Show_Allocated\n13)Show_Free\n14)Is_Empty\n99)Quit\n\n" RESET;
 
 	int menulen = strlen(menu);
 

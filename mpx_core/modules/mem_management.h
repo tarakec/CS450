@@ -26,9 +26,13 @@ int allocateMemory(u32int size);
 
 int freeMemory(cmcb* toBeFreed);
 
+int showFree();
 
+int showAllocated();
 
+int isEmpty();
 
+cmcb* addressCheck(u32int address);
 
 
 
