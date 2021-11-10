@@ -142,7 +142,7 @@ void merge(cmcb * curr){
             free_list.head = freePtr;
         }
 }
-        void free_list(int type)
+        void showFreeList(int type)
         {
             cmcb * curr = NULL;
 
