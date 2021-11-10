@@ -80,7 +80,6 @@ int freeMemory(cmcb * toBeFreed){
        
     
 }
-<<<<<<< HEAD
 
 void merge(cmcb * curr){
     cmcb * currPtr = curr; 
@@ -143,7 +142,7 @@ void merge(cmcb * curr){
             free_list.head = freePtr;
         }
 }
-        void show_list(int type)
+        void free_list(int type)
         {
             cmcb * curr = NULL;
 
@@ -187,5 +186,3 @@ void merge(cmcb * curr){
             }
         }
 
-=======
->>>>>>> 8fae0ca1a4650ff609fb3a143cb9f682c836cc0a
