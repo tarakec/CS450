@@ -200,7 +200,15 @@ int freeMemory(cmcb * toBeFreed){
     }
             //change the current node to free
             toBeFreed->type = free;
+            
+            //look right
+            if(toBeFreed->next ->type == free){
+                toBeFreed->size = toBeFreed->size +toBeFreed->next->size; //merge the two blocks
 
+                toBeFreed->next = toBeFreed -> next->next; //link list back together with new free block
+
+            }
+  
             //look to the left
             if(toBeFreed->prev->type == free){
                 toBeFreed->size = toBeFreed->size +toBeFreed->prev->size; //merge the two blocks
@@ -209,13 +217,7 @@ int freeMemory(cmcb * toBeFreed){
 
             }
 
-            //look right
-            if(toBeFreed->next ->type == free){
-                toBeFreed->size = toBeFreed->size +toBeFreed->next->size; //merge the two blocks
-
-                toBeFreed->next = toBeFreed -> next->next; //link list back together with new free block
-
-            }
+            
 
             return 0;
        
