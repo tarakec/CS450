@@ -22,7 +22,7 @@ typedef struct list{
  */
 void init_heap(u32int size);
 
-int allocateMemory(u32int size);
+u32int allocateMemory(u32int size);
 
 int freeMemory(cmcb* toBeFreed);
 
@@ -33,7 +33,5 @@ int showAllocated();
 int isEmpty();
 
 cmcb* addressCheck(u32int address);
-
-
 
 #endif

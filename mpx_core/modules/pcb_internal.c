@@ -19,9 +19,10 @@ pcb* allocatePCB(){
 
 int freePCB(pcb *toBeFreed){
 		int i;
-        cmcb* transfer = (cmcb*) toBeFreed;
-        
-		i = sys_free_mem(transfer);
+
+        u32int test = (u32int) toBeFreed - 1172;
+        cmcb* pls = addressCheck(test);
+		i = sys_free_mem(pls);
 
 		return i;
     }   

@@ -53,7 +53,7 @@ pcb* createPCB(char *name, int classs, int priority){
             return 0;
         }
      }
-     if(removePCB(process) && (freePCB(process) != -1)){ //removes and frees it
+     if(removePCB(process) == 1 && (freePCB(process) != -1)){ //removes and frees it
         return 1;
      }
      else{

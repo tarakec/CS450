@@ -137,7 +137,7 @@ void sys_set_malloc(u32int (*func)(u32int))
   Description..: Sets the memory free function for sys_free_mem
   Params..: s1-destination, s2-source
 */
-void sys_set_free(int (*func)(cmcb *))
+void sys_set_free(int (*func)(cmcb*))
 {
   student_free = func;
 }
@@ -152,7 +152,7 @@ void *sys_alloc_mem(u32int size)
   if (!mem_module_active)
     return (void *) kmalloc(size);
   else
-    return (void *) (*student_malloc)(size);
+    return (cmcb*) (*student_malloc)(size);
 }
 
 
