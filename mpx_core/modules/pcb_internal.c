@@ -19,7 +19,9 @@ pcb* allocatePCB(){
 
 int freePCB(pcb *toBeFreed){
 		int i;
-		i = sys_free_mem(toBeFreed);
+        cmcb* transfer = (cmcb*) toBeFreed;
+        
+		i = sys_free_mem(transfer);
 
 		return i;
     }   

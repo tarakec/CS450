@@ -10,6 +10,7 @@
 #include <string.h>
 #include <core/serial.h>
 #include "pcb_internal.h"
+#include "mem_management.h"
 
 // global variable containing parameter used when making
 // system calls via sys_req
@@ -29,7 +30,7 @@ u32int (*student_malloc)(u32int);
 
 // if a student created heap manager is implemented this
 // is a pointer to the student's "free" operation.
-int (*student_free)(void *);
+int (*student_free)(cmcb *);
 
 
 
@@ -136,7 +137,7 @@ void sys_set_malloc(u32int (*func)(u32int))
   Description..: Sets the memory free function for sys_free_mem
   Params..: s1-destination, s2-source
 */
-void sys_set_free(int (*func)(void *))
+void sys_set_free(int (*func)(cmcb *))
 {
   student_free = func;
 }

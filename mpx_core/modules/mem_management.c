@@ -15,6 +15,7 @@
 
 list heapPtr;
 u32int memory_start;
+u32int addr;
 
 
 void init_heap(u32int size) {
@@ -74,6 +75,7 @@ int allocateMemory(u32int size) {
      
       leftoverFree->type = free;
       leftoverFree->beginAddr = required_size + sizeof(cmcb) + (u32int) allocate;
+      addr = leftoverFree->beginAddr;
 
       
       leftoverFree-> size = curr->size - sizeof(cmcb) - size;
@@ -88,7 +90,7 @@ int allocateMemory(u32int size) {
     allocate->size = size;
 
     serial_print("\nAllocation was sucessfull..\n\n");
-      return 1;
+      return addr;
 }
 
 //return int for error checking?
