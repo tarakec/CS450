@@ -466,7 +466,7 @@ void help(){
 	   char *sd= F_YELLOW "Quit will shutdown the operating system.\n\n" RESET;
 	   int sdSize=strlen(sd);
 
-	   char *g = "/----------Menu---------/\n";
+	   char *g = "/----------Menu (Option: 0)---------/\n";
 	   int gLen = strlen(g);
 	   char *menu= F_YELLOW "Menu will display the list of available commands.\nSimply type 'menu' for the menu to reappear.\n\n" RESET;
 	   int menuLen=strlen(menu);
@@ -485,6 +485,21 @@ void help(){
 	   int iLen = strlen(i);
 	   char *pcbMode= F_YELLOW "Enters Process Management Mode.\nHas own help function within itself.\n\n" RESET;
 	   int pcbModeLen=strlen(pcbMode);
+
+	   char *z = "/----------Show_Allocated (Option: 10)---------/\n";
+	   int zLen = strlen(z);
+	   char *z1= F_YELLOW "Will display all of the allcoated blocks of memory\nand the corresponding address in memory.\n\n" RESET;
+	   int z1Len=strlen(z1);
+
+	   char *y = "/----------Show_Free(Option: 11)---------/\n";
+	   int yLen = strlen(y);
+	   char *y1= F_YELLOW "Will display all of the free blocks of memory\nand the corresponding address in memory.\n\n" RESET;
+	   int y1Len=strlen(y1);
+
+	   char *x = "/----------Is_Empty (Option: 12)---------/\n";
+	   int xLen = strlen(x);
+	   char *x1= F_YELLOW "Will check if the heap is empty.\n\n" RESET;
+	   int x1Len=strlen(x1);
 
 	   	sys_req(WRITE,DEFAULT_DEVICE,msg, &msgLen);
 		sys_req(WRITE, DEFAULT_DEVICE, g, &gLen);
@@ -505,13 +520,18 @@ void help(){
 		sys_req(WRITE,DEFAULT_DEVICE, alarm, &alarmLen);
 		sys_req(WRITE, DEFAULT_DEVICE, j, &jLen);
 		sys_req(WRITE,DEFAULT_DEVICE, clear1, &clear1Len);
+		
+	    sys_req(WRITE, DEFAULT_DEVICE, z, &zLen);
+		sys_req(WRITE,DEFAULT_DEVICE,z1, &z1Len);
+		sys_req(WRITE, DEFAULT_DEVICE, y, &yLen);
+		sys_req(WRITE,DEFAULT_DEVICE, y1, &y1Len);
+		sys_req(WRITE, DEFAULT_DEVICE, x, &xLen);
+		sys_req(WRITE,DEFAULT_DEVICE,x1,&x1Len);
 		sys_req(WRITE, DEFAULT_DEVICE, f, &fLen);
 		sys_req(WRITE,DEFAULT_DEVICE,sd,&sdSize);
-
-   }
-
+}
 void version(){
-	char *version = "\nVersion R4 \nLast Updated on 10/22/2021\n";
+	char *version = "\nVersion R5 \nLast Updated on 11/11/2021\n";
 	int length = strlen(version);
 	sys_req(WRITE, DEFAULT_DEVICE, version, &length);
 }
@@ -780,7 +800,7 @@ void getTime(){
 
    void menu(){
    	//initial greeting
-	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"1)Help\n2)Set_date\n3)Get_date\n4)Set_time\n5)Get_time\n6)Version\n7)Process_Management_Mode\n8)alarm\n9)clear\n10)Show_Allocated\n11)Show_Free\n12)Is_Empty\n99)Quit\n\n" RESET;
+	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"0)Menu\n1)Help\n2)Set_date\n3)Get_date\n4)Set_time\n5)Get_time\n6)Version\n7)Process_Management_Mode\n8)alarm\n9)clear\n10)Show_Allocated\n11)Show_Free\n12)Is_Empty\n99)Quit\n\n" RESET;
 
 	int menulen = strlen(menu);
 
