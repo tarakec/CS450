@@ -83,9 +83,9 @@ int allocateMemory(u32int size) {
       if (leftoverFree->next != NULL){
         leftoverFree->next->prev = leftoverFree;
       }
-      allocate->size = size;
+      
   }
-
+    allocate->size = size;
 
     serial_print("\nAllocation was sucessfull..\n\n");
       return 1;
@@ -105,20 +105,25 @@ int freeMemory(cmcb * toBeFreed){
             //change the current node to free
             toBeFreed->type = free;
 
-            //look to the left
-            if(toBeFreed->prev->type == free){
-                toBeFreed->size = toBeFreed->size +toBeFreed->prev->size + sizeof(cmcb); //merge the two blocks
-
-                toBeFreed->prev = toBeFreed->prev->prev; //link list back together without old free block
-
-            }
             //look right
             if(toBeFreed->next->type == free){
                 toBeFreed->size = toBeFreed->size +toBeFreed->next->size + sizeof(cmcb); //merge the two blocks
 
-                toBeFreed->next = toBeFreed -> next->next; //link list back together with new free block
+                toBeFreed->next = toBeFreed->next->next; //link list back together with new free block
+                toBeFreed->next->prev = toBeFreed;
+
 
             }
+
+            //look to the left
+            if(toBeFreed->prev->type == free){
+                toBeFreed->prev->size = toBeFreed->size +toBeFreed->prev->size + sizeof(cmcb); //merge the two blocks
+
+                toBeFreed->prev->next = toBeFreed->next; //link list back together without old free block
+                toBeFreed->next->prev = toBeFreed->prev;
+
+            }
+            
   
             
 
