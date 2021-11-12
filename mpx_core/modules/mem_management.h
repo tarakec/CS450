@@ -22,16 +22,39 @@ typedef struct list{
  */
 void init_heap(u32int size);
 
+/**
+ * Allocates memory in from the heap
+ * @param size the amount of bytes to be allocated from the heap
+ */
 u32int allocateMemory(u32int size);
 
+/**
+ * frees a particular block of memory that was previously allocated
+ * @param toBeFreed a pointer to an address in memory
+ */
 int freeMemory(cmcb* toBeFreed);
 
+/**
+ * traverses through a list that will show the address of the block as well as the size of the block for free memory
+ * 
+ */
 int showFree();
-
+/**
+ * traverses through a list that will show the address of the block as well as the size of the block for allocated memory
+ * 
+ */
 int showAllocated();
 
+/**
+ * will return true or false as to whether the heap is empty/ contains only free memory
+ * 
+ */
 int isEmpty();
 
+/**
+ * checks the address to see if it is the correct one
+ * @param address an address in memory in the heap
+ */
 cmcb* addressCheck(u32int address);
 
 #endif
