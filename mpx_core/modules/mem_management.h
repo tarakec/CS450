@@ -52,7 +52,7 @@ int showAllocated();
 int isEmpty();
 
 /**
- * checks the address to see if it is the correct one
+ * takes the address and finds the pointer that points at the address
  * @param address an address in memory in the heap
  */
 cmcb* addressCheck(u32int address);
