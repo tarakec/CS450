@@ -17,8 +17,8 @@ typedef struct list{
 }list;
 
 /**
- * Checks against the the list of times and runs the appropriate process
- * @param size the alarm selected for deletion.
+ * Initializes the heap of memory
+ * @param size is the total size of the heap to be created.
  */
 void init_heap(u32int size);
 
