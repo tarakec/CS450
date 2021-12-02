@@ -26,6 +26,9 @@
 #include "modules/pcb_internal.h"
 #include "modules/pcb_commands.h"
 #include "modules/mem_management.h"
+#include "modules/mpx_R6.h"
+
+#define dev COM1
 
 void kmain(void)
 {
@@ -97,14 +100,26 @@ void kmain(void)
 
    u32int size = 50000;
    init_heap(size);
-   
+
+
+   com_open(1200);
+
+   int a = 1;
+   while(1){
+    (void) a;
+   }
+
    sys_set_malloc(allocateMemory);
    sys_set_free(freeMemory); 
 
    allocateQueues();
    init_paging();
+
+
    // 6) Call YOUR command handler -  interface method
    klogv("Transferring control to commhand...");
+
+   
 
   pcb* c = load_proc("commhand", &command_handler);
   pcb* i = load_proc("idle", &idle);
