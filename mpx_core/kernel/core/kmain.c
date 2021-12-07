@@ -53,7 +53,9 @@ void kmain(void)
    //     MPX Module.  This will change with each module.
    // you will need to call mpx_init from the mpx_supt.c
 
-   mpx_init(MODULE_R5);
+    mpx_init(MEM_MODULE);
+   mpx_init(IO_MODULE);
+
 
    // 2) Check that the boot was successful and correct when using grub
    // Comment this when booting the kernel directly using QEMU, etc.
@@ -95,19 +97,11 @@ void kmain(void)
 
    klogv("Initializing virtual memory...");
 
-
-   mpx_init(MEM_MODULE);
-
    u32int size = 50000;
    init_heap(size);
 
 
    com_open(1200);
-
-   int a = 1;
-   while(1){
-    (void) a;
-   }
 
    sys_set_malloc(allocateMemory);
    sys_set_free(freeMemory); 
