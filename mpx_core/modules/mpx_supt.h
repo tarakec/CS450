@@ -2,6 +2,7 @@
 #define _MPX_SUPT_H
 
 #include <system.h>
+#include "mem_management.h"
 
 #define EXIT 0
 #define IDLE 1
@@ -62,7 +63,7 @@ void sys_set_malloc(u32int (*func)(u32int));
   Description..: Sets the memory free function for sys_free_mem
   Params..: s1-destination, s2-source
 */
-void sys_set_free(int (*func)(void *));
+void sys_set_free(int (*func)(cmcb *));
 
 
 

@@ -25,7 +25,10 @@
 #include "modules/commandhandler.h"
 #include "modules/pcb_internal.h"
 #include "modules/pcb_commands.h"
+#include "modules/mem_management.h"
+#include "modules/mpx_R6.h"
 
+#define dev COM1
 
 void kmain(void)
 {
@@ -50,7 +53,13 @@ void kmain(void)
    //     MPX Module.  This will change with each module.
    // you will need to call mpx_init from the mpx_supt.c
 
+<<<<<<< HEAD
    mpx_init(MODULE_R5);
+=======
+    mpx_init(MEM_MODULE);
+   mpx_init(IO_MODULE);
+
+>>>>>>> bd6df54226745a2cd13371f3d1a69771cb9c33f8
 
    // 2) Check that the boot was successful and correct when using grub
    // Comment this when booting the kernel directly using QEMU, etc.
@@ -87,14 +96,28 @@ void kmain(void)
    // NOTE:  You will only have about 70000 bytes of dynamic memory
    //
 
-   allocateQueues();
-   init_paging();
+
+
 
    klogv("Initializing virtual memory...");
+
+   u32int size = 50000;
+   init_heap(size);
+
+
+   com_open(1200);
+
+   sys_set_malloc(allocateMemory);
+   sys_set_free(freeMemory); 
+
+   allocateQueues();
+   init_paging();
 
 
    // 6) Call YOUR command handler -  interface method
    klogv("Transferring control to commhand...");
+
+   
 
   pcb* c = load_proc("commhand", &command_handler);
   pcb* i = load_proc("idle", &idle);

@@ -33,6 +33,7 @@ void proc1()
     for(i=0; i<RC_1; i++){
       //serial_println("proc1 dispatched");
   sys_req(WRITE, DEFAULT_DEVICE, msg1, &msgSize);
+  sys_req(WRITE,DEFAULT_DEVICE,"\n",&msgSize);
       sys_req(IDLE, DEFAULT_DEVICE, NULL, NULL);
     }
       sys_req(EXIT, DEFAULT_DEVICE, NULL, NULL);
@@ -49,6 +50,7 @@ void proc2()
   while(1){
     for(i=0; i<RC_2; i++){
       sys_req(WRITE, DEFAULT_DEVICE, msg2, &msgSize);
+      sys_req(WRITE,DEFAULT_DEVICE,"\n",&msgSize);
       sys_req(IDLE, DEFAULT_DEVICE, NULL, NULL);
     }
       sys_req(EXIT, DEFAULT_DEVICE, NULL, NULL);
@@ -64,6 +66,7 @@ void proc3()
   while(1){
     for(i=0; i<RC_3; i++){
       sys_req(WRITE, DEFAULT_DEVICE, msg3, &msgSize);
+      sys_req(WRITE,DEFAULT_DEVICE,"\n",&msgSize);
       sys_req(IDLE, DEFAULT_DEVICE, NULL, NULL);
     }
       sys_req(EXIT, DEFAULT_DEVICE, NULL, NULL);
@@ -79,6 +82,7 @@ void proc4()
   while(1){
     for(i=0; i<RC_4; i++){
       sys_req(WRITE, DEFAULT_DEVICE, msg4, &msgSize);
+      sys_req(WRITE,DEFAULT_DEVICE,"\n",&msgSize);
       sys_req(IDLE, DEFAULT_DEVICE, NULL, NULL);
     }
       sys_req(EXIT, DEFAULT_DEVICE, NULL, NULL);
@@ -94,6 +98,7 @@ void proc5()
   while(1){
     for(i=0; i<RC_5; i++){
       sys_req(WRITE, DEFAULT_DEVICE, msg5, &msgSize);
+      sys_req(WRITE,DEFAULT_DEVICE,"\n",&msgSize);
       sys_req(IDLE, DEFAULT_DEVICE, NULL, NULL);
     }
       sys_req(EXIT, DEFAULT_DEVICE, NULL, NULL);

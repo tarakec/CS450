@@ -38,9 +38,6 @@ void command_handler(){
 	int quit=0;
 	int innerQuit = 0;
 
-	u32int sizeofHeap = 1000;
-	init_heap(sizeofHeap);
-
 
 	while(!quit) {
 
@@ -273,41 +270,41 @@ void command_handler(){
 
 					setAlarm(msg, h , m , s);
 			}
-		else if ((strcmp(cmdBuffer,"10") ==0) || (strcmp(cmdBuffer, "Allocate") == 0) || (strcmp(cmdBuffer, "allocate") == 0)){
-				char size[16];
-				int s = 16;
+		// else if ((strcmp(cmdBuffer,"10") ==0) || (strcmp(cmdBuffer, "Allocate") == 0) || (strcmp(cmdBuffer, "allocate") == 0)){
+		// 		char size[16];
+		// 		int s = 16;
 
-				memset(size,'\0',16);
+		// 		memset(size,'\0',16);
 
-				CHOICE = 0;
-				sys_req(WRITE,DEFAULT_DEVICE,"Size of Allocation: \n",&s);
-				sys_req(READ,DEFAULT_DEVICE,size, &s);
-				u32int num =(u32int) atoi(size);
-				allocateMemory(num);
-				CHOICE = 1;
-			}
+		// 		CHOICE = 0;
+		// 		sys_req(WRITE,DEFAULT_DEVICE,"Size of Allocation: \n",&s);
+		// 		sys_req(READ,DEFAULT_DEVICE,size, &s);
+		// 		u32int num =(u32int) atoi(size);
+		// 		allocateMemory(num);
+		// 		CHOICE = 1;
+		// 	}
 
-		else if ((strcmp(cmdBuffer,"11") ==0) || (strcmp(cmdBuffer, "Free") == 0) || (strcmp(cmdBuffer, "free") == 0)){
-				char address[16];
-				int a = 16;
+		// else if ((strcmp(cmdBuffer,"11") ==0) || (strcmp(cmdBuffer, "Free") == 0) || (strcmp(cmdBuffer, "free") == 0)){
+		// 		char address[16];
+		// 		int a = 16;
 
-				memset(address,'\0',16);
+		// 		memset(address,'\0',16);
 
-				CHOICE = 0;
-				sys_req(WRITE,DEFAULT_DEVICE,"Address of Memory to be Freed:  \n",&a);
-				sys_req(READ,DEFAULT_DEVICE,address, &a);
-				u32int addr =(u32int) atoi(address);
-				cmcb* toBeFreed = addressCheck(addr);
-				freeMemory(toBeFreed);
-				CHOICE = 1;
-			}
-		else if ((strcmp(cmdBuffer,"12") ==0) || (strcmp(cmdBuffer, "Show_Free") == 0) || (strcmp(cmdBuffer, "show_free") == 0)){
+		// 		CHOICE = 0;
+		// 		sys_req(WRITE,DEFAULT_DEVICE,"Address of Memory to be Freed:  \n",&a);
+		// 		sys_req(READ,DEFAULT_DEVICE,address, &a);
+		// 		u32int addr =(u32int) atoi(address);
+		// 		cmcb* toBeFreed = addressCheck(addr);
+		// 		freeMemory(toBeFreed);
+		// 		CHOICE = 1;
+		// 	}
+		else if ((strcmp(cmdBuffer,"10") ==0) || (strcmp(cmdBuffer, "Show_Free") == 0) || (strcmp(cmdBuffer, "show_free") == 0)){
 				showAllocated();
 			}
-		else if ((strcmp(cmdBuffer,"13") ==0) || (strcmp(cmdBuffer, "Show_Allocated") == 0) || (strcmp(cmdBuffer, "show_allocated") == 0)){
+		else if ((strcmp(cmdBuffer,"11") ==0) || (strcmp(cmdBuffer, "Show_Allocated") == 0) || (strcmp(cmdBuffer, "show_allocated") == 0)){
 				showFree();
 			}
-		else if ((strcmp(cmdBuffer,"14") ==0) || (strcmp(cmdBuffer, "Is_Empty") == 0) || (strcmp(cmdBuffer, "is_empty") == 0)){
+		else if ((strcmp(cmdBuffer,"12") ==0) || (strcmp(cmdBuffer, "Is_Empty") == 0) || (strcmp(cmdBuffer, "is_empty") == 0)){
 				if(isEmpty()){
 					serial_print("\nHeap is empty!\n\n");
 				}
@@ -493,7 +490,7 @@ void help(){
 	   char *sd= F_YELLOW "Quit will shutdown the operating system.\n\n" RESET;
 	   int sdSize=strlen(sd);
 
-	   char *g = "/----------Menu---------/\n";
+	   char *g = "/----------Menu (Option: 0)---------/\n";
 	   int gLen = strlen(g);
 	   char *menu= F_YELLOW "Menu will display the list of available commands.\n\n" RESET;
 	   int menuLen=strlen(menu);
@@ -516,8 +513,31 @@ void help(){
 >>>>>>> c8b67b3f891b9bc7cb0641db1562e08baa685e66
 
 
+<<<<<<< HEAD
 		sys_req(WRITE,DEFAULT_DEVICE,a,&aLen);
 	   	sys_req(WRITE,DEFAULT_DEVICE,ver,&verSize);
+=======
+	   char *z = "/----------Show_Allocated (Option: 10)---------/\n";
+	   int zLen = strlen(z);
+	   char *z1= F_YELLOW "Will display all of the allcoated blocks of memory\nand the corresponding address in memory.\n\n" RESET;
+	   int z1Len=strlen(z1);
+
+	   char *y = "/----------Show_Free(Option: 11)---------/\n";
+	   int yLen = strlen(y);
+	   char *y1= F_YELLOW "Will display all of the free blocks of memory\nand the corresponding address in memory.\n\n" RESET;
+	   int y1Len=strlen(y1);
+
+	   char *x = "/----------Is_Empty (Option: 12)---------/\n";
+	   int xLen = strlen(x);
+	   char *x1= F_YELLOW "Will check if the heap is empty.\n\n" RESET;
+	   int x1Len=strlen(x1);
+
+	   	sys_req(WRITE,DEFAULT_DEVICE,msg, &msgLen);
+		sys_req(WRITE, DEFAULT_DEVICE, g, &gLen);
+		sys_req(WRITE,DEFAULT_DEVICE, menu, &menuLen);
+	    sys_req(WRITE, DEFAULT_DEVICE, c, &cLen);
+		sys_req(WRITE,DEFAULT_DEVICE,setdate,&dateSetSize);
+>>>>>>> bd6df54226745a2cd13371f3d1a69771cb9c33f8
 		sys_req(WRITE, DEFAULT_DEVICE, b, &bLen);
 		sys_req(WRITE,DEFAULT_DEVICE,getdate,&dateSize);
 		sys_req(WRITE, DEFAULT_DEVICE, c, &cLen);
@@ -547,14 +567,23 @@ void version(){
 		sys_req(WRITE,DEFAULT_DEVICE, alarm, &alarmLen);
 		sys_req(WRITE, DEFAULT_DEVICE, j, &jLen);
 		sys_req(WRITE,DEFAULT_DEVICE, clear1, &clear1Len);
+		
+	    sys_req(WRITE, DEFAULT_DEVICE, z, &zLen);
+		sys_req(WRITE,DEFAULT_DEVICE,z1, &z1Len);
+		sys_req(WRITE, DEFAULT_DEVICE, y, &yLen);
+		sys_req(WRITE,DEFAULT_DEVICE, y1, &y1Len);
+		sys_req(WRITE, DEFAULT_DEVICE, x, &xLen);
+		sys_req(WRITE,DEFAULT_DEVICE,x1,&x1Len);
 		sys_req(WRITE, DEFAULT_DEVICE, f, &fLen);
 		sys_req(WRITE,DEFAULT_DEVICE,sd,&sdSize);
-
-   }
-
+}
 void version(){
+<<<<<<< HEAD
 	char *version = "\nVersion R5 \nLast Updated on 11/12/2021\n";
 >>>>>>> c8b67b3f891b9bc7cb0641db1562e08baa685e66
+=======
+	char *version = "\nVersion R5 \nLast Updated on 11/11/2021\n";
+>>>>>>> bd6df54226745a2cd13371f3d1a69771cb9c33f8
 	int length = strlen(version);
 	sys_req(WRITE, DEFAULT_DEVICE, version, &length);
 }
@@ -823,7 +852,7 @@ void getTime(){
 
    void menu(){
    	//initial greeting
-	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"1)Help\n2)Set_date\n3)Get_date\n4)Set_time\n5)Get_time\n6)Version\n7)Process_Management_Mode\n8)alarm\n9)clear\n10)Allocate\n11)Free\n12)Show_Allocated\n13)Show_Free\n14)Is_Empty\n99)Quit\n\n" RESET;
+	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"0)Menu\n1)Help\n2)Set_date\n3)Get_date\n4)Set_time\n5)Get_time\n6)Version\n7)Process_Management_Mode\n8)alarm\n9)clear\n10)Show_Allocated\n11)Show_Free\n12)Is_Empty\n99)Quit\n\n" RESET;
 
 	int menulen = strlen(menu);
 

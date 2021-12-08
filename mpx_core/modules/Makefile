@@ -18,7 +18,9 @@ pcb_internal.o\
 pcb_commands.o\
 procsr3.o\
 alarm.o\
-mem_management.o
+mem_management.o\
+mpx_R6.o
+
 
 .c.s:
 	$(CC) $(CFLAGS) -S -o $@ $<

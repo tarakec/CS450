@@ -15,6 +15,7 @@
 
 list heapPtr;
 u32int memory_start;
+u32int addr;
 
 
 void init_heap(u32int size) {
@@ -32,7 +33,7 @@ void init_heap(u32int size) {
 }
 
 //return 0 for error, 1 for success ?
-int allocateMemory(u32int size) {
+u32int allocateMemory(u32int size) {
   cmcb *curr =heapPtr.head;
 
 
@@ -74,6 +75,7 @@ int allocateMemory(u32int size) {
      
       leftoverFree->type = free;
       leftoverFree->beginAddr = required_size + sizeof(cmcb) + (u32int) allocate;
+      addr = leftoverFree->beginAddr;
 
       
       leftoverFree-> size = curr->size - sizeof(cmcb) - size;
@@ -88,18 +90,21 @@ int allocateMemory(u32int size) {
     allocate->size = size;
 
     serial_print("\nAllocation was sucessfull..\n\n");
-      return 1;
+      return addr;
 }
 
 //return int for error checking?
-int freeMemory(cmcb * toBeFreed){
+int freeMemory(cmcb* toBFreed){
+
     cmcb *currHeap = heapPtr.head;
+
+    cmcb* toBeFreed = (cmcb*) toBFreed;
     
     //error checking
     if(toBeFreed->type != allocated || currHeap == NULL){
 
         //serial_print("Memory is not allocated...");
-        return 1; //cmcb is not allocated
+        return -1; //cmcb is not allocated
     }
 
             //change the current node to free
@@ -130,7 +135,7 @@ int freeMemory(cmcb * toBeFreed){
             
             serial_print("\nMemory was freed...\n\n");
 
-            return 0;
+            return 1;
        
     
 }
@@ -270,6 +275,16 @@ int isEmpty(){
 }
 
 cmcb* addressCheck(u32int address){
+
+    // int misc = 16;
+    // char block_add[30];
+    // itoa(address, block_add);
+    // int block_add_size = strlen(block_add);
+
+    // sys_req(WRITE, DEFAULT_DEVICE, block_add, &block_add_size);
+    // sys_req(WRITE,DEFAULT_DEVICE,"\n",&misc);
+    // sys_req(WRITE,DEFAULT_DEVICE,"\n",&misc);
+
     cmcb* curr = heapPtr.head;
 
     while(curr!=NULL){
@@ -287,3 +302,4 @@ cmcb* addressCheck(u32int address){
      serial_print("Couldn't locate the free block with the address given...\n");
      return curr;
 }
+
