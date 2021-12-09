@@ -21,11 +21,14 @@ void command_handler(){
 
 	//initial greeting
 	char *greetings = F_CYAN "\nHello :) Welcome to 'Four of a Kind' MPX\n" RESET;
-
+	char * cool_creative_opening = F_YELLOW "\n                              ###########\n                         #####################\n                      ###########################\n                     #########   ######   ##########\n                   ##########    #####    ###########\n                  ###########    #####    ############\n                 ############   ######   #############\n                 #####################################\n                  ###      ###################      ###\n                  #####   ####################   ######\n                     #####    ###########    ########\n                       ########         ############\n                        #########################\n                           #################\n                              ###########\n" F_YELLOW;
 	int greetinglen = strlen(greetings);
+	int cool_creative_opening_len = strlen(cool_creative_opening);
 
 	// print the greeting
 	sys_req(WRITE,DEFAULT_DEVICE,greetings,&greetinglen);
+	sys_req(WRITE, DEFAULT_DEVICE, cool_creative_opening, &cool_creative_opening_len);
+	sys_req(WRITE,DEFAULT_DEVICE,"\n",&greetinglen);
 
 	menu();
 
