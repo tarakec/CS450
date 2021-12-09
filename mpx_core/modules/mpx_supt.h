@@ -93,8 +93,8 @@ void idle();
 
 void infinite();
 
-int IOScheduler();
+// int IOScheduler();
 
-int dispatcher();
+// int dispatcher();
 
 #endif

@@ -531,7 +531,7 @@ void help(){
 		sys_req(WRITE,DEFAULT_DEVICE,sd,&sdSize);
 }
 void version(){
-	char *version = "\nVersion R5 \nLast Updated on 11/11/2021\n";
+	char *version = "\nVersion R6 \nLast Updated on 12/08/2021\n";
 	int length = strlen(version);
 	sys_req(WRITE, DEFAULT_DEVICE, version, &length);
 }

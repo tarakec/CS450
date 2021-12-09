@@ -125,12 +125,12 @@ int com_open(int baud_rate){
 //set the writing interrupt on or off
 void set_int(int bit, int on){
 	if(!on){
-		outb(dev+1, inb(dev+1) | (1<<bit)); //off
+		outb(dev+1, inb(dev+1) & ~(1<<bit)); //off
 	
 	}
 	else{
-		klogv("writing interrupt on..");
-		outb(dev+1, inb(dev+1) & ~(1<<bit)); //on
+		klogv("WRITE INT ON");
+		outb(dev+1, inb(dev+1) | (1<<bit)); //on
 	}
 }
 
@@ -362,18 +362,16 @@ int com_write(char *buf_p, int *count_p){
 	//reset transfer count
 	serial_dcb->out_transfer_count = 0;
 
+	
+	//grab character from requestor's buffer and store in output register
+	outb(dev, serial_dcb->output);
+
 	//set the writing interrupt to on
 	set_int(1,ON);
 
-	//grab character from requestor's buffer and store in output register
-	outb(dev, serial_dcb->output);
-	//serial_print(serial_dcb->output);
-	
 	serial_dcb->output++;
 	serial_dcb->out_transfer_count++;
 	
-	
-
 	return 0;
 
 }

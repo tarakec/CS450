@@ -52,7 +52,7 @@ void kmain(void)
    // you will need to call mpx_init from the mpx_supt.c
 
     mpx_init(MEM_MODULE);
-    mpx_init(IO_MODULE);
+    //mpx_init(IO_MODULE);
 
 
    // 2) Check that the boot was successful and correct when using grub
@@ -99,7 +99,8 @@ void kmain(void)
    init_heap(size);
 
 
-  com_open(1200);
+  //com_open(1200);
+
   
 
    sys_set_malloc(allocateMemory);
@@ -112,7 +113,9 @@ void kmain(void)
    // 6) Call YOUR command handler -  interface method
    klogv("Transferring control to commhand...");
 
-   
+  // char* msg = "testing com_write";
+  // int msgLen = strlen(msg);
+  // com_write(msg,&msgLen);
 
   pcb* c = load_proc("commhand", &command_handler);
   pcb* i = load_proc("idle", &idle);
