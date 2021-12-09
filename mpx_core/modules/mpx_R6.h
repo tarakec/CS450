@@ -1,4 +1,4 @@
-
+#include "pcb_internal.h"
 
 #ifndef _MPX_R6_H
 #define _MPX_R6_H
@@ -61,17 +61,23 @@ typedef struct device{
 	int ring_input; //amount characters coming into the ring buffer
 	int ring_output; // amount characters coming out of the ring buffer
 	int ring_counter; //amount of total characters in the ring buffer
-	int transferred_count; // amount of transferred characters
-}DCB;
+	int in_transfer_count; // amount of transferred characters
+	int out_transfer_count;
+}dcb;
 
 typedef struct IOControlBlock{
-
-}IOCB;
+	pcb *requestor;
+	dcb *dcb;
+	int operation; //read or write
+	char *buff_ptr; 
+	int *count_ptr;
+	struct IOControlBlock *next;
+}iocb;
 
 typedef struct IOQueue{
 	int count;
-	IOCB *head;
-	IOCB *tail;
+	iocb *head;
+	iocb *tail;
 }q;
 
 int com_open(int baud_rate);
@@ -80,12 +86,19 @@ void top_handler();
 
 void set_int(int bit, int on);
 
-int input_handler();
+void input_handler();
 
 int com_close();
 
 int com_read(char *buf_p, int *count_p);
 
-int output_handler();
+void output_handler();
+
+int com_write(char* buff_p, int* count_p);
+
+int com_read(char* buff_p, int* count_p);
+
+void enable();
+void disable();
 
 #endif

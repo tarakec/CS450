@@ -18,7 +18,7 @@ queue *readyQ;
 
 void command_handler(){
 
-
+	klogv("Trying to print greeting");
 	//initial greeting
 	char *greetings = F_CYAN "\nHello :) Welcome to 'Four of a Kind' MPX\n" RESET;
 
@@ -805,6 +805,7 @@ void getTime(){
 	int menulen = strlen(menu);
 
 	// print the greeting
+
 	sys_req(WRITE,DEFAULT_DEVICE,menu,&menulen);
    }
 

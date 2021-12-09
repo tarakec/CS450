@@ -11,6 +11,7 @@
 #include <core/serial.h>
 #include <core/tables.h>
 #include <core/interrupts.h>
+#include <modules/mpx_R6.h>
 
 
 // Programmable Interrupt Controllers
@@ -47,6 +48,7 @@ extern void reserved();
 extern void coprocessor();
 extern void rtc_isr();
 extern void sys_call_isr();
+//extern void top_handler_isr();
 
 extern idt_entry idt_entries[256];
 
@@ -100,6 +102,8 @@ void init_irq(void)
 
   // //hook interrupt request on line 60
   idt_set_gate(60 , (u32int)sys_call_isr, 0x08, 0x08e);
+
+  //idt_set_gate(0x24, (u32int) top_handler_isr, 0x08,0x8e);
 }
 
 /*

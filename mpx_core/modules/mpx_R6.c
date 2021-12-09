@@ -5,27 +5,30 @@
 #include <string.h>
 #include "mpx_R6.h"
 #include "polling_helper.h"
+#include "pcb_internal.h"
+#include "pcb_commands.h"
+#include "mpx_supt.h"
 
 u32int dev = COM1;
 int level = 4;
 
-DCB serial_dcb;
+dcb *serial_dcb;
 
 u32int original_idt_entry;
 
 
-
+//top level handler
 void top_handler(){
 
-	if(serial_dcb.port_status == OPEN){
+	if(serial_dcb->port_status == OPEN){
 		cli();
 
 		//interrupt id register
 		int type = inb(dev+2);
 
 		//skipping bit 0, grabbing bit 1 and 2
-		int bit1 = type>>1 & 1;
-		int bit2 = type>>2 & 1;
+		int bit1 = type>>1 && 1;
+		int bit2 = type>>2 && 1;
 
 		if(!bit1 && !bit2){
 			//modem
@@ -51,7 +54,7 @@ void top_handler(){
 	outb(0x20,0x20); //clear interrupt
 }
 
-
+//com open function
 int com_open(int baud_rate){
 	//error checking
 
@@ -61,7 +64,7 @@ int com_open(int baud_rate){
 	}
 
 	//check that port is not already open
-	if(serial_dcb.port_status == OPEN){
+	if(serial_dcb->port_status == OPEN){
 		return PORT_ALREADY_OPEN;
 	}
 
@@ -69,18 +72,18 @@ int com_open(int baud_rate){
 	cli();
 
 	//set port status to open
-	serial_dcb.port_status = OPEN;
+	serial_dcb->port_status = OPEN;
 
 	//set to 1 because not doing operation yet
-	serial_dcb.event_flag = SET;
+	serial_dcb->event_flag = SET;
 
 	//set to idle because not reading or writing yet
-	serial_dcb.status_code = R6_IDLE;
+	serial_dcb->status_code = R6_IDLE;
 
 	//initialize ring buffer
-	serial_dcb.ring_input = 0;
-	serial_dcb.ring_output = 0;
-	serial_dcb.ring_counter = 0;
+	serial_dcb->ring_input = 0;
+	serial_dcb->ring_output = 0;
+	serial_dcb->ring_counter = 0;
 
 
 	original_idt_entry = idt_get_gate(0x24);
@@ -108,8 +111,9 @@ int com_open(int baud_rate){
 	outb(dev + 2, 0b11000111);
 
 	//enable PIC level
-	outb(0x21, inb(0x21) & ~(1<<level));
+	outb(0x21, inb(0x21) && ~(1<<level));
 
+	//read interrupt on
 	outb(dev + 1, 0b00000001);
 	(void) inb(dev);
 
@@ -120,97 +124,103 @@ int com_open(int baud_rate){
 
 //set the writing interrupt on or off
 void set_int(int bit, int on){
-	if(on){
-		outb(dev+1, inb(dev+1) | (1<<bit));
+	if(!on){
+		outb(dev+1, inb(dev+1) | (1<<bit)); //off
+	
 	}
 	else{
-		outb(dev+1, inb(dev+1) & ~(1<<bit));
+		klogv("writing interrupt on..");
+		outb(dev+1, inb(dev+1) & ~(1<<bit)); //on
 	}
 }
 
 //will be our input interrupt handler 
-int input_handler(){
+void input_handler(){
+
 
 	//grab character from COM1
 	char i = inb(dev);
-
+	
 	//if status is not reading. store into ring buffer
-	if(serial_dcb.status_code != R6_READ){
+	if(serial_dcb->status_code != R6_READ){
 
-		int size=0;
-
-		while(serial_dcb.ring_buffer[size]!=NULL){
-			size++;
-		}
 
 		//if the ring buffer is not full, insert the character into it
-		if(size < 16){
-			serial_dcb.ring_buffer[serial_dcb.ring_counter] = i;
-			serial_dcb.ring_counter++;
+		if(serial_dcb->ring_counter < 16){
+			serial_dcb->ring_buffer[serial_dcb->ring_counter] = i;
+			serial_dcb->ring_counter++;
 		}
 		else{
 			//maybe need to discard character
 		}
 
-		return 0;
+		return;
 	}
 	//if the status is reading
 	else{
-
 		//concat the letter into the input buffer
-		char* iPtr = &i;
-		strcat(serial_dcb.input, iPtr); 
+		*serial_dcb->input = i;
+		serial_dcb->input++;
 
 		//increment the transferred count
-		serial_dcb.transferred_count++;
+		serial_dcb->in_transfer_count++;
 
 		//if count not complete and not a new line
-		if(serial_dcb.transferred_count < (int)serial_dcb.input_count && (int) serial_dcb.input != '\r'){
-			return 0;
+		if(serial_dcb->in_transfer_count < *serial_dcb->input_count && i != '\r'){
+			return;
 		}
 		else{
 			//else transfer complete
-			serial_dcb.status_code = R6_IDLE;
-			serial_dcb.event_flag = SET;
-			return (int)serial_dcb.input_count;
+			serial_dcb->status_code = R6_IDLE;
+			serial_dcb->event_flag = SET;
+			*serial_dcb->input_count = serial_dcb->in_transfer_count;
+			return;
 		}
 	}
 	
 }
 
-int output_handler(){
-	
+//second level output handler
+void output_handler(){
+ 
+
 	//if current status is not writing, return
-	if(serial_dcb.status_code != R6_WRITE){
-		return 0;
+	if(serial_dcb->status_code != R6_WRITE){
+		return;
 	}	
 
-	if(serial_dcb.transferred_count < (int) serial_dcb.output_count){
-		outb(dev, serial_dcb.output);
-		serial_dcb.transferred_count++;
-		return 0;
+	//if the transfer count is not yet the expected output count then grab another character and transfer to the output register
+	if(serial_dcb->out_transfer_count < *serial_dcb->output_count){
+		outb(dev, serial_dcb->output);
+		serial_dcb->output++;
+		serial_dcb->out_transfer_count++;
+		return;
 	}
+	//if the transfer count is the expeted output count, then SET event flag, set status to idle, turn off the writing ints
 	else{
-		serial_dcb.status_code = R6_IDLE;
-		serial_dcb.event_flag = SET;
+		serial_dcb->status_code = R6_IDLE;
+		serial_dcb->event_flag = SET;
 		set_int(1,OFF);
-		return (int)serial_dcb.output_count;
+		return;
 	}
 
 }
 
 int com_close(){
 
+	cli();
+
 	//make sure port is open
-	if(serial_dcb.port_status == CLOSED){
+	if(serial_dcb->port_status == CLOSED){
 		return PORT_NOT_OPEN;
 	}
 
 	//clearing open indicator
-	serial_dcb.port_status = CLOSED;
+	serial_dcb->port_status = CLOSED;
 
 	//turning the writing interrupt off
 	set_int(1,OFF);
+	
 
 	//disable PIC_MASK Register
 	int mask = inb(PIC_MASK);
@@ -223,7 +233,9 @@ int com_close(){
 
 
 	//restore original saved interrupt vector
-	//outb(dev, original_idt_entry); IDK
+	//outb(dev, original_idt_entry); 
+
+	sti();
 
 	return 0;
 }
@@ -231,7 +243,7 @@ int com_close(){
 int com_read(char *buf_p, int *count_p){
 
 	//port not open
-	if(serial_dcb.port_status != OPEN){
+	if(serial_dcb->port_status != OPEN){
 		return READ_PORT_NOT_OPEN;
 	}
 
@@ -246,64 +258,79 @@ int com_read(char *buf_p, int *count_p){
 	}
 
 	//device is busy
-	if(serial_dcb.status_code != R6_IDLE){
+	if(serial_dcb->status_code != R6_IDLE){
 		return DEVICE_BUSY;
 	}
 
 	// setting the status code to reading
-	serial_dcb.status_code = R6_READ;
+	serial_dcb->status_code = R6_READ;
 
 	//initialize input buffer variables
-	serial_dcb.input = buf_p;
-	serial_dcb.input_count = count_p;
+	serial_dcb->input = buf_p;
+	serial_dcb->input_count = count_p;
 
 	//clear event flag
-	serial_dcb.event_flag = CLEARED;
+	serial_dcb->event_flag = CLEARED;
 
 	//disable
 	cli();
 
 	int i = 0;
-	serial_dcb.transferred_count = 0;
-	while(serial_dcb.ring_buffer[i] != NULL || serial_dcb.transferred_count >= (int) serial_dcb.input_count || serial_dcb.ring_buffer[i] != '\r'){
+	serial_dcb->in_transfer_count = 0;
+	while(serial_dcb->ring_buffer[i] != NULL || serial_dcb->in_transfer_count >= *serial_dcb->input_count || serial_dcb->ring_buffer[i] != '\r'){
 
-		//maybe works
+		// //maybe works
 
-		//grabbing the character in the ring_buffer
-		char test = serial_dcb.ring_buffer[i];
+		// //grabbing the character in the ring_buffer
+		// char test = serial_dcb.ring_buffer[i];
 
-		//creating a pointer to it
-		char* ptr = &test;
+		// //creating a pointer to it
+		// char* ptr = &test;
 
-		//concat that char to the buf_p
-		strcat(buf_p,ptr);
+		// //concat that char to the input buffer
+		// strcat(serial_dcb.input,ptr);
 
-		//clear the char of the ring_buffer
-		memset(ptr,'\0',1);
+		// //clear the char of the ring_buffer
+		// memset(ptr,'\0',1);
+
+		//grabbing the letter
+		char letter = serial_dcb->ring_buffer[i];
+
+		//putting it in the input buffer
+		*serial_dcb->input = letter;
+
+		//incrementing the pointer
+		serial_dcb->input++;
+
 		i++;
-		serial_dcb.transferred_count++;
+
+		serial_dcb->in_transfer_count++;
 	}
 
 	//check if more characters are needed
-	if(serial_dcb.transferred_count < (int) serial_dcb.input_count){
+	if(serial_dcb->in_transfer_count < *serial_dcb->input_count){
 		return 0;
 	}
 
 	//set device code to idle
-	serial_dcb.status_code = R6_IDLE;
+	serial_dcb->status_code = R6_IDLE;
 
 	//set the event flag
-	serial_dcb.event_flag = SET;
+	serial_dcb->event_flag = SET;
 
 	//enable
+
 	sti();
 
-	return serial_dcb.transferred_count;
+	return serial_dcb->in_transfer_count;
 }
 
 int com_write(char *buf_p, int *count_p){
+
+	klogv("com_write");
+
 	//port not open
-	if(serial_dcb.port_status != OPEN){
+	if(serial_dcb->port_status != OPEN){
 		return WRITE_PORT_NOT_OPEN;
 	}
 
@@ -318,35 +345,35 @@ int com_write(char *buf_p, int *count_p){
 	}
 
 	//device is busy
-	if(serial_dcb.status_code != R6_IDLE){
+	if(serial_dcb->status_code != R6_IDLE){
 		return WRITE_DEVICE_BUSY;
 	}
 
 	// setting the status code to writing
-	serial_dcb.status_code = R6_WRITE;
+	serial_dcb->status_code = R6_WRITE;
 
 	//initialize output buffer variables
-	serial_dcb.output = buf_p;
-	serial_dcb.output_count = count_p;
+	serial_dcb->output = buf_p;
+	serial_dcb->output_count = count_p;
 
 	//clear event flag
-	serial_dcb.event_flag = CLEARED;
+	serial_dcb->event_flag = CLEARED;
 
-	//grab character from requestor's buffer and store in output register
-	outb(dev, serial_dcb.output);
-	serial_dcb.output_count++;
-	
+	//reset transfer count
+	serial_dcb->out_transfer_count = 0;
+
 	//set the writing interrupt to on
 	set_int(1,ON);
 
+	//grab character from requestor's buffer and store in output register
+	outb(dev, serial_dcb->output);
+	//serial_print(serial_dcb->output);
+	
+	serial_dcb->output++;
+	serial_dcb->out_transfer_count++;
+	
+	
+
 	return 0;
 
-
-
-
 }
-
-
-
-
-

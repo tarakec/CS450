@@ -28,8 +28,6 @@
 #include "modules/mem_management.h"
 #include "modules/mpx_R6.h"
 
-#define dev COM1
-
 void kmain(void)
 {
    extern uint32_t magic;
@@ -42,10 +40,10 @@ void kmain(void)
    // functions to initialize serial I/O can be found in serial.c
    // there are 3 functions to call
 
-   init_serial(COM1);
+   //init_serial(COM1);
    set_serial_out(COM1);
    set_serial_in(COM1);
-
+   
    klogv("Starting MPX boot sequence...");
    klogv("Initialized serial I/O on COM1 device...");
 
@@ -54,7 +52,7 @@ void kmain(void)
    // you will need to call mpx_init from the mpx_supt.c
 
     mpx_init(MEM_MODULE);
-   mpx_init(IO_MODULE);
+    mpx_init(IO_MODULE);
 
 
    // 2) Check that the boot was successful and correct when using grub
@@ -101,7 +99,8 @@ void kmain(void)
    init_heap(size);
 
 
-   com_open(1200);
+  com_open(1200);
+  
 
    sys_set_malloc(allocateMemory);
    sys_set_free(freeMemory); 
@@ -121,7 +120,7 @@ void kmain(void)
   c->priority = 9;
   c->state = ready;
 
-  i->priority = 1;
+  i->priority = 0;
   i->state = ready;
 
   insertPCB(c);
@@ -133,6 +132,8 @@ void kmain(void)
 
    // 7) System Shutdown on return from your command handler
    klogv("Starting system shutdown procedure...");
+
+   com_close();
 
    /* Shutdown Procedure */
    klogv("Shutdown complete. You may now turn off the machine. (QEMU: C-a x)");
