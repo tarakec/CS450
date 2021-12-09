@@ -3,6 +3,7 @@
 
 #include <system.h>
 #include "mem_management.h"
+#include "mpx_R6.h"
 
 #define EXIT 0
 #define IDLE 1
@@ -28,6 +29,8 @@
 
 #define DEFAULT_DEVICE 111
 #define COM_PORT 222
+
+#define ERROR -1
 
 typedef struct {
   int op_code;
@@ -89,5 +92,9 @@ int sys_free_mem(void *ptr);
 void idle();
 
 void infinite();
+
+int IOScheduler(iocb* ptr);
+
+int dispatcher(int result, iocb* ptr);
 
 #endif

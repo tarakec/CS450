@@ -11,6 +11,7 @@
 #include <core/serial.h>
 #include "pcb_internal.h"
 #include "mem_management.h"
+#include "mpx_R6.h"
 
 // global variable containing parameter used when making
 // system calls via sys_req
@@ -18,6 +19,8 @@ param params;
 pcb* cop; //currently operating process
 context *globalContext;
 extern queue *readyQ;
+q *com1Queue;
+extern dcb *serial_dcb;
 
 // global for the current module
 int current_module = -1;
@@ -193,7 +196,7 @@ void idle()
 
 
 u32int *sys_call(context *registers){
-  pcb* head = readyQ->head;
+  pcb* readyHead = readyQ->head;
   if(cop == NULL){
     globalContext = registers;
   }
@@ -206,16 +209,112 @@ u32int *sys_call(context *registers){
     else if(params.op_code == EXIT){
       freePCB(cop);
     }
-  }
 
-  if(head != NULL){
+    else if(params.op_code == READ || params.op_code == WRITE ){
+
+      cop->stackTop = (unsigned char*) registers;
+      cop->state = blocked;
+      insertPCB(cop);
+     
+
+      iocb *ptr = sys_alloc_mem(sizeof(iocb));
+      ptr->requestor = cop;
+      ptr->dcb = serial_dcb;
+      ptr->operation = params.op_code;
+      ptr->next = NULL;
+      ptr->buff_ptr = params.buffer_ptr;
+      ptr->count_ptr = params.count_ptr;
+      int result = IOScheduler(ptr);
+      dispatcher(result , ptr);
+
+  }
+}
+
+  if(readyHead != NULL){
     // serial_println("head not empth");
     // pcb* readyHead = readyQ->head;
-    removePCB(head);
-    head->state = running;
-    cop = head;
+    removePCB(readyHead);
+    readyHead->state = running;
+    cop = readyHead;
     return(u32int*) cop->stackTop;
   }
 
   return (u32int*) globalContext;
-}
+  }
+
+
+  int IOScheduler(iocb* ptr){
+ 
+    if(params.op_code != READ && params.op_code != WRITE){
+      return INVALID_OPERATION;
+    }
+    
+      //if the device is not busy
+      if(serial_dcb->status_code == R6_IDLE){
+
+
+        if(ptr->operation == READ){
+          com_read(ptr->buff_ptr, ptr->count_ptr);
+      }
+      else{
+          com_write(ptr->buff_ptr, ptr->count_ptr);
+        }
+        return 1;
+      }
+    
+    //if it is busy, then add to the queue
+    else{
+    
+     //insert iocb at the head
+      if(com1Queue->head == NULL){
+        com1Queue->head = ptr;
+        ptr->next = com1Queue->tail;
+        com1Queue->tail = NULL;
+        com1Queue->count++;
+      }
+        //if not at the head, then at the tail
+      else{
+        com1Queue->tail = ptr;
+        ptr->next = com1Queue->tail;
+        com1Queue->tail = NULL;
+        com1Queue->count++;
+      }
+
+      return 0;
+    }
+    
+  }
+
+  int dispatcher(int result, iocb* ptr){
+    
+    if (result == 1){
+      
+       removePCB(ptr->requestor);
+        ptr->requestor->state = ready;
+        insertPCB(ptr->requestor);
+         
+    }
+    else{
+
+      iocb* head = com1Queue->head;
+
+      if(head->operation == READ){
+        com_read(head->buff_ptr,head->count_ptr);
+      }
+      else if(head->operation == WRITE){
+        com_write(head->buff_ptr,head->count_ptr);
+      }
+
+      removePCB(head->requestor);
+      ptr->requestor->state = ready;
+      insertPCB(ptr->requestor);
+
+      //remove from iocb queue
+      iocb *temp = head;
+      head = head->next;
+      sys_free_mem(temp);
+      com1Queue->count--;
+
+    }
+    return 0;
+  }

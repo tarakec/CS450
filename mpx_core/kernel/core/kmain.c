@@ -26,6 +26,7 @@
 #include "modules/pcb_internal.h"
 #include "modules/pcb_commands.h"
 #include "modules/mem_management.h"
+#include "modules/mpx_R6.h"
 
 void kmain(void)
 {
@@ -42,7 +43,7 @@ void kmain(void)
    init_serial(COM1);
    set_serial_out(COM1);
    set_serial_in(COM1);
-
+   
    klogv("Starting MPX boot sequence...");
    klogv("Initialized serial I/O on COM1 device...");
 
@@ -50,7 +51,9 @@ void kmain(void)
    //     MPX Module.  This will change with each module.
    // you will need to call mpx_init from the mpx_supt.c
 
-   mpx_init(MODULE_R5);
+    mpx_init(MEM_MODULE);
+    mpx_init(IO_MODULE);
+
 
    // 2) Check that the boot was successful and correct when using grub
    // Comment this when booting the kernel directly using QEMU, etc.
@@ -92,28 +95,39 @@ void kmain(void)
 
    klogv("Initializing virtual memory...");
 
-
-   mpx_init(MEM_MODULE);
-
    u32int size = 50000;
    init_heap(size);
-   
+
+
+  com_open(1200);
+  
+
    sys_set_malloc(allocateMemory);
    sys_set_free(freeMemory); 
 
    allocateQueues();
    init_paging();
+
+
+  char* msg = "\ntesting com_write in the kmain.c\n\n";
+  int len = strlen(msg);
+  com_write(msg,&len);
+
    // 6) Call YOUR command handler -  interface method
    klogv("Transferring control to commhand...");
 
+ 
   pcb* c = load_proc("commhand", &command_handler);
   pcb* i = load_proc("idle", &idle);
 
   c->priority = 9;
   c->state = ready;
 
-  i->priority = 1;
+  i->priority = 0;
   i->state = ready;
+
+  
+
 
   insertPCB(c);
   insertPCB(i);
@@ -124,6 +138,8 @@ void kmain(void)
 
    // 7) System Shutdown on return from your command handler
    klogv("Starting system shutdown procedure...");
+
+   com_close();
 
    /* Shutdown Procedure */
    klogv("Shutdown complete. You may now turn off the machine. (QEMU: C-a x)");

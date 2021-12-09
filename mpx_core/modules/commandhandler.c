@@ -18,7 +18,7 @@ queue *readyQ;
 
 void command_handler(){
 
-
+	//klogv("Trying to print greeting");
 	//initial greeting
 	char *greetings = F_CYAN "\nHello :) Welcome to 'Four of a Kind' MPX\n" RESET;
 	char * cool_creative_opening = F_YELLOW "\n                              ###########\n                         #####################\n                      ###########################\n                     #########   ######   ##########\n                   ##########    #####    ###########\n                  ###########    #####    ############\n                 ############   ######   #############\n                 #####################################\n                  ###      ###################      ###\n                  #####   ####################   ######\n                     #####    ###########    ########\n                       ########         ############\n                        #########################\n                           #################\n                              ###########\n" F_YELLOW;
@@ -32,7 +32,7 @@ void command_handler(){
 
 	menu();
 
-	sys_req(WRITE,DEFAULT_DEVICE,"\n",&greetinglen);
+	//sys_req(WRITE,DEFAULT_DEVICE,"\n",&greetinglen);
 
 	char cmdBuffer[100]; //buffer for command read in
 	char innerBuffer[100];
@@ -803,12 +803,15 @@ void getTime(){
 
    void menu(){
    	//initial greeting
-	char *menu = F_CYAN "\nWhat would you like to do? \n\n"RESET F_GREEN"0)Menu\n1)Help\n2)Set_date\n3)Get_date\n4)Set_time\n5)Get_time\n6)Version\n7)Process_Management_Mode\n8)alarm\n9)clear\n10)Show_Allocated\n11)Show_Free\n12)Is_Empty\n99)Quit\n\n" RESET;
+	char *testing = F_CYAN "\nWhat would you like to do? \n\n"F_GREEN"0)Menu\n1)Help\n2)Set_date\n3)Get_date\n4)Set_time\n5)Get_time\n6)Version\n7)Process_Management_Mode\n8)alarm\n9)clear\n10)Show_Allocated\n11)Show_Free\n12)Is_Empty\n99)Quit\n\n" RESET;
 
-	int menulen = strlen(menu);
+	int testinglen = strlen(testing);
 
 	// print the greeting
-	sys_req(WRITE,DEFAULT_DEVICE,menu,&menulen);
+
+	sys_req(WRITE,DEFAULT_DEVICE,testing,&testinglen);
+
+
    }
 
 
