@@ -93,8 +93,8 @@ void idle();
 
 void infinite();
 
-int IOScheduler();
+int IOScheduler(iocb* ptr);
 
-int dispatcher();
+int dispatcher(int result, iocb* ptr);
 
 #endif

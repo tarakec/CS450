@@ -27,8 +27,8 @@ void top_handler(){
 		int type = inb(dev+2);
 
 		//skipping bit 0, grabbing bit 1 and 2
-		int bit1 = type>>1 && 1;
-		int bit2 = type>>2 && 1;
+		int bit1 = type>>1 & 1;
+		int bit2 = type>>2 & 1;
 
 		if(!bit1 && !bit2){
 			//modem
@@ -111,11 +111,13 @@ int com_open(int baud_rate){
 	outb(dev + 2, 0b11000111);
 
 	//enable PIC level
-	outb(0x21, inb(0x21) && ~(1<<level));
+	outb(0x21, inb(0x21) & ~(1<<level));
 
 	//read interrupt on
 	outb(dev + 1, 0b00000001);
 	(void) inb(dev);
+
+	outb(dev + 4, 0x0B); 
 
 	//enable maskable ints
 	sti();
@@ -123,14 +125,15 @@ int com_open(int baud_rate){
 }
 
 //set the writing interrupt on or off
-void set_int(int bit, int on){
-	if(!on){
-		outb(dev+1, inb(dev+1) | (1<<bit)); //off
+void set_int(int on){
+	if(on){
+		
+		outb(dev+1, inb(dev+1) | (0x02)); //on
 	
 	}
 	else{
-		klogv("writing interrupt on..");
-		outb(dev+1, inb(dev+1) & ~(1<<bit)); //on
+		
+		outb(dev+1, inb(dev+1) & ~(0x02)); //
 	}
 }
 
@@ -190,8 +193,8 @@ void output_handler(){
 	}	
 
 	//if the transfer count is not yet the expected output count then grab another character and transfer to the output register
-	if(serial_dcb->out_transfer_count < *serial_dcb->output_count){
-		outb(dev, serial_dcb->output);
+	if(serial_dcb->out_transfer_count != *serial_dcb->output_count){
+		outb(dev, serial_dcb->output[0]);
 		serial_dcb->output++;
 		serial_dcb->out_transfer_count++;
 		return;
@@ -200,7 +203,7 @@ void output_handler(){
 	else{
 		serial_dcb->status_code = R6_IDLE;
 		serial_dcb->event_flag = SET;
-		set_int(1,OFF);
+		set_int(OFF);
 		return;
 	}
 
@@ -219,7 +222,7 @@ int com_close(){
 	serial_dcb->port_status = CLOSED;
 
 	//turning the writing interrupt off
-	set_int(1,OFF);
+	set_int(OFF);
 	
 
 	//disable PIC_MASK Register
@@ -241,6 +244,7 @@ int com_close(){
 }
 
 int com_read(char *buf_p, int *count_p){
+	
 
 	//port not open
 	if(serial_dcb->port_status != OPEN){
@@ -272,8 +276,6 @@ int com_read(char *buf_p, int *count_p){
 	//clear event flag
 	serial_dcb->event_flag = CLEARED;
 
-	//disable
-	cli();
 
 	int i = 0;
 	serial_dcb->in_transfer_count = 0;
@@ -327,8 +329,6 @@ int com_read(char *buf_p, int *count_p){
 
 int com_write(char *buf_p, int *count_p){
 
-	klogv("com_write");
-
 	//port not open
 	if(serial_dcb->port_status != OPEN){
 		return WRITE_PORT_NOT_OPEN;
@@ -352,6 +352,7 @@ int com_write(char *buf_p, int *count_p){
 	// setting the status code to writing
 	serial_dcb->status_code = R6_WRITE;
 
+
 	//initialize output buffer variables
 	serial_dcb->output = buf_p;
 	serial_dcb->output_count = count_p;
@@ -363,17 +364,15 @@ int com_write(char *buf_p, int *count_p){
 	serial_dcb->out_transfer_count = 0;
 
 	//set the writing interrupt to on
-	set_int(1,ON);
+	set_int(ON);
 
 	//grab character from requestor's buffer and store in output register
-	outb(dev, serial_dcb->output);
-	//serial_print(serial_dcb->output);
+	outb(dev, serial_dcb->output[0]);
+	
 	
 	serial_dcb->output++;
 	serial_dcb->out_transfer_count++;
 	
-	
-
 	return 0;
 
 }

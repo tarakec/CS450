@@ -40,7 +40,7 @@ void kmain(void)
    // functions to initialize serial I/O can be found in serial.c
    // there are 3 functions to call
 
-   //init_serial(COM1);
+   init_serial(COM1);
    set_serial_out(COM1);
    set_serial_in(COM1);
    
@@ -109,11 +109,14 @@ void kmain(void)
    init_paging();
 
 
+  char* msg = "\ntesting com_write in the kmain.c\n\n";
+  int len = strlen(msg);
+  com_write(msg,&len);
+
    // 6) Call YOUR command handler -  interface method
    klogv("Transferring control to commhand...");
 
-   
-
+ 
   pcb* c = load_proc("commhand", &command_handler);
   pcb* i = load_proc("idle", &idle);
 
@@ -122,6 +125,9 @@ void kmain(void)
 
   i->priority = 0;
   i->state = ready;
+
+  
+
 
   insertPCB(c);
   insertPCB(i);

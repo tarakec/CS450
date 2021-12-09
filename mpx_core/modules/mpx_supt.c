@@ -211,9 +211,22 @@ u32int *sys_call(context *registers){
     }
 
     else if(params.op_code == READ || params.op_code == WRITE ){
-      cop->stackTop = (unsigned char*) registers;
 
-    IOScheduler();
+      cop->stackTop = (unsigned char*) registers;
+      cop->state = blocked;
+      insertPCB(cop);
+     
+
+      iocb *ptr = sys_alloc_mem(sizeof(iocb));
+      ptr->requestor = cop;
+      ptr->dcb = serial_dcb;
+      ptr->operation = params.op_code;
+      ptr->next = NULL;
+      ptr->buff_ptr = params.buffer_ptr;
+      ptr->count_ptr = params.count_ptr;
+      int result = IOScheduler(ptr);
+      dispatcher(result , ptr);
+
   }
 }
 
@@ -230,30 +243,14 @@ u32int *sys_call(context *registers){
   }
 
 
-  int IOScheduler(){
-  klogv("IOScheduler");
+  int IOScheduler(iocb* ptr){
+ 
     if(params.op_code != READ && params.op_code != WRITE){
       return INVALID_OPERATION;
     }
-
-      iocb *ptr = sys_alloc_mem(sizeof(iocb));
-
     
       //if the device is not busy
       if(serial_dcb->status_code == R6_IDLE){
-
-        //place cop in blocked state
-        cop->state = blocked;
-        insertPCB(cop); 
-
-        //place information in iocb
-        ptr->requestor = cop;
-        ptr->dcb = serial_dcb;
-        ptr->operation = params.op_code;
-        ptr->buff_ptr = params.buffer_ptr;
-        ptr->count_ptr = params.count_ptr;
-        ptr->next = NULL;
-
 
 
         if(ptr->operation == READ){
@@ -262,18 +259,12 @@ u32int *sys_call(context *registers){
       else{
           com_write(ptr->buff_ptr, ptr->count_ptr);
         }
+        return 1;
       }
     
     //if it is busy, then add to the queue
     else{
-      
-      cop->state = blocked;
-      insertPCB(cop);
-      
-      ptr->requestor = cop;
-      ptr->dcb = serial_dcb;
-      ptr->operation = params.op_code;
-
+    
      //insert iocb at the head
       if(com1Queue->head == NULL){
         com1Queue->head = ptr;
@@ -289,40 +280,41 @@ u32int *sys_call(context *registers){
         com1Queue->count++;
       }
 
-    
+      return 0;
     }
-    return dispatcher();
+    
   }
 
-  int dispatcher(){
+  int dispatcher(int result, iocb* ptr){
+    
+    if (result == 1){
+      
+       removePCB(ptr->requestor);
+        ptr->requestor->state = ready;
+        insertPCB(ptr->requestor);
+         
+    }
+    else{
 
-    klogv("Dispatcher");
-    //dispatcher
-    iocb* head = com1Queue->head;
-    klogv("TEST1");
-    //if the event flag is set and there is an iocb at the head
-    if(head->dcb->event_flag == SET && head != NULL){
-       klogv("TEST2");
-      //remove pcb from blocked to ready queue
-      removePCB(head->requestor);
-      head->requestor->state = ready;
-      insertPCB(head->requestor);
-   
+      iocb* head = com1Queue->head;
+
       if(head->operation == READ){
-        com_read(head->buff_ptr, head->count_ptr);
+        com_read(head->buff_ptr,head->count_ptr);
       }
       else if(head->operation == WRITE){
-        com_write(head->buff_ptr, head->count_ptr);
+        com_write(head->buff_ptr,head->count_ptr);
       }
-      
-      //remove from IOCB queue
+
+      removePCB(head->requestor);
+      ptr->requestor->state = ready;
+      insertPCB(ptr->requestor);
+
+      //remove from iocb queue
       iocb *temp = head;
       head = head->next;
       sys_free_mem(temp);
       com1Queue->count--;
 
-      return 0;
     }
-    klogv("test3");
-    return ERROR;
+    return 0;
   }

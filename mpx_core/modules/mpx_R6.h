@@ -84,7 +84,7 @@ int com_open(int baud_rate);
 
 void top_handler();
 
-void set_int(int bit, int on);
+void set_int(int on);
 
 void input_handler();
 
